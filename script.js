@@ -1,3 +1,4 @@
+
 class TicTacToe {
     constructor() {
         this.board = Array(36).fill('');
@@ -748,11 +749,18 @@ class TicTacToe {
         winnerText.textContent = message;
         modal.style.display = 'flex';
         
-        // 勝利ラインのハイライト
-        if (!message.includes('引き分け')) {
-            this.highlightWinningLine();
-        }
+        const playAgainBtn = document.getElementById('play-again-btn');
+    if (playAgainBtn) {
+        // 既存のイベントリスナーを削除
+        playAgainBtn.replaceWith(playAgainBtn.cloneNode(true));
+        
+        // 新しいイベントリスナーを設定
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            console.log('もう一度プレイボタンがクリックされました');
+            this.playAgain();
+        });
     }
+}
     
     hideWinnerModal() {
         document.getElementById('winner-modal').style.display = 'none';
@@ -821,7 +829,7 @@ class TicTacToe {
     
     
     playAgain() {
-        this.resetGame();
+        this.resetGame(); // ゲームをリセット
     }
     
     clearBoard() {
