@@ -84,7 +84,6 @@ body {
     transition: all 0.3s ease;
     margin-bottom: 1rem;
 }
-
 .gravity-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -348,3 +347,48 @@ body {
         max-width: 200px;
     }
 }
+/* 既存のCSSコード */
+
+/* ルール説明のスタイルを追加 */
+.rules-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.rules-section h2 {
+    text-align: center;
+    margin: 0 0 15px 0;
+    font-size: 1.3rem;
+    color: #fff;
+}
+
+.rules-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.rule-icon {
+    font-size: 1.5rem;
+}
+
+.rule-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* 既存のCSSコード */
