@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>〇✕ゲーム - 6×6マス + 重力</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">〇✕ゲーム</h1>
+        <div class="game-info">
+            <div class="status" id="status">〇の番です</div>
+            <div class="score">
+                <span>〇: <span id="score-o">0</span></span>
+                <span>✕: <span id="score-x">0</span></span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="gravity-btn" class="gravity-btn">重力を使う</button>
+            <div class="gravity-directions" id="gravity-directions" style="display: none;">
+                <button class="direction-btn" data-direction="up">↑</button>
+                <button class="direction-btn" data-direction="left">←</button>
+                <button class="direction-btn" data-direction="right">→</button>
+                <button class="direction-btn" data-direction="down">↓</button>
+            </div>
+        </div>
+        
+        <div class="game-board" id="game-board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+            <div class="cell" data-index="9"></div>
+            <div class="cell" data-index="10"></div>
+            <div class="cell" data-index="11"></div>
+            <div class="cell" data-index="12"></div>
+            <div class="cell" data-index="13"></div>
+            <div class="cell" data-index="14"></div>
+            <div class="cell" data-index="15"></div>
+            <div class="cell" data-index="16"></div>
+            <div class="cell" data-index="17"></div>
+            <div class="cell" data-index="18"></div>
+            <div class="cell" data-index="19"></div>
+            <div class="cell" data-index="20"></div>
+            <div class="cell" data-index="21"></div>
+            <div class="cell" data-index="22"></div>
+            <div class="cell" data-index="23"></div>
+            <div class="cell" data-index="24"></div>
+            <div class="cell" data-index="25"></div>
+            <div class="cell" data-index="26"></div>
+            <div class="cell" data-index="27"></div>
+            <div class="cell" data-index="28"></div>
+            <div class="cell" data-index="29"></div>
+            <div class="cell" data-index="30"></div>
+            <div class="cell" data-index="31"></div>
+            <div class="cell" data-index="32"></div>
+            <div class="cell" data-index="33"></div>
+            <div class="cell" data-index="34"></div>
+            <div class="cell" data-index="35"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="reset-btn" class="reset-btn">リセット</button>
+        </div>
+        
+        <div class="winner-modal" id="winner-modal">
+            <div class="modal-content">
+                <h2 id="winner-text">〇が勝ちました！</h2>
+                <button id="play-again-btn" class="play-again-btn">もう一度プレイ</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
