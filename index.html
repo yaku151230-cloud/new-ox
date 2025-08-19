@@ -1,5 +1,62 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>6×6 〇×ゲーム（重力ルール）</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1>6×6 〇×ゲーム（重力ルール）</h1>
+        <div class="controls">
+          <button id="btn-reset" class="btn">リセット</button>
+        </div>
+      </header>
+
+      <section class="status">
+        <div id="turn-info"></div>
+        <div id="message" class="message"></div>
+      </section>
+
+      <main class="board-section">
+        <div id="board" class="board" aria-label="game board" role="grid"></div>
+        <div class="gravity">
+          <div class="gravity-row">
+            <button id="g-up" class="btn grav" title="上に重力">↑ 上</button>
+          </div>
+          <div class="gravity-row">
+            <button id="g-left" class="btn grav" title="左に重力">← 左</button>
+            <button id="g-right" class="btn grav" title="右に重力">右 →</button>
+          </div>
+          <div class="gravity-row">
+            <button id="g-down" class="btn grav" title="下に重力">↓ 下</button>
+          </div>
+        </div>
+      </main>
+
+      <section class="rules">
+        <details>
+          <summary>ルール</summary>
+          <ul>
+            <li>盤面は 6×6。X と O が交互に手番。</li>
+            <li>自分の手番では「コマを1つ置く」か「重力（上下左右のいずれか）」のどちらかを選ぶ。</li>
+            <li>縦・横・斜めで <strong>4つ以上</strong> 連続で並ぶと、その記号のプレイヤーが<strong>勝利</strong>。</li>
+            <li><strong>ちょうど3つ</strong> 連続で並ぶと、その3つは<strong>盤面から消える</strong>。</li>
+            <li>重力を使って3つが揃った場合は<strong>消えたあとに同じ方向に再び重力</strong>がかかり、
+              その結果さらに3つが揃えば同様に消滅、4つ以上が揃えば勝利（連鎖）。</li>
+          </ul>
+        </details>
+      </section>
+    </div>
+
+    <script defer src="/main.js"></script>
+  </body>
+  </html>
+
+<!DOCTYPE html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
