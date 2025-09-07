@@ -7,98 +7,174 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">New 〇✕ゲーム</h1>
-        <!-- ゲームタイトルの下、ゲームボードの上にルール説明を追加 -->
+    <div class="main-container">
+        <!-- 左側：メイン画面 -->
+        <div class="main-screen" id="main-screen">
+            <div class="header">
+                <button id="help-btn" class="help-btn">?</button>
+            </div>
+            
+            <div class="main-content">
+                <h1 class="title">New 〇✕ゲーム</h1>
+                
+                <div class="game-mode-buttons">
+                    <button id="play-2p-btn" class="play-btn play-2p-btn">二人で遊ぶ</button>
+                    <button id="play-cpu-btn" class="play-btn play-cpu-btn">CPUと遊ぶ</button>
+                </div>
+            </div>
+        </div>
 
-<div class="rules-section">
-    <h2>ルール説明</h2>
-    <div class="rules-content">
-        <div class="rule-item">
-            <span class="rule-icon">・</span>
-            <span class="rule-text">縦横斜めに4つ以上並んだら勝ち</span>
-        </div>
-        <div class="rule-item">
-            <span class="rule-icon">・</span>
-            <span class="rule-text">3つちょうどなら盤面から消える</span>
-        </div>
-        <div class="rule-item">
-            <span class="rule-icon">・</span>
-            <span class="rule-text">重力：一人一回、上下左右の好きな方向に〇と✕を寄せられる</span>
-        </div>
-    </div>
-</div>
+        <!-- 右側：ゲーム画面 -->
+        <div class="game-screen" id="game-screen" style="display: none;">
+            <div class="game-header">
+                <button id="back-to-main-btn" class="back-btn">← メインに戻る</button>
+            </div>
 
-<div class="game-board">
-    <!-- 既存のゲームボード -->
-</div>
-        <div class="game-info">
-            <div class="status" id="status">〇の番です</div>
-            <div class="score">
-                <span>〇: <span id="score-o">0</span></span>
-                <span>✕: <span id="score-x">0</span></span>
+            <div class="gravity-section">
+                <button id="gravity-btn" class="gravity-btn">重力を使う</button>
+                <div class="gravity-directions" id="gravity-directions" style="display: none;">
+                    <button class="direction-btn" data-direction="up">↑</button>
+                    <button class="direction-btn" data-direction="left">←</button>
+                    <button class="direction-btn" data-direction="right">→</button>
+                    <button class="direction-btn" data-direction="down">↓</button>
+                </div>
+            </div>
+
+            <div class="game-board" id="game-board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+                <div class="cell" data-index="9"></div>
+                <div class="cell" data-index="10"></div>
+                <div class="cell" data-index="11"></div>
+                <div class="cell" data-index="12"></div>
+                <div class="cell" data-index="13"></div>
+                <div class="cell" data-index="14"></div>
+                <div class="cell" data-index="15"></div>
+                <div class="cell" data-index="16"></div>
+                <div class="cell" data-index="17"></div>
+                <div class="cell" data-index="18"></div>
+                <div class="cell" data-index="19"></div>
+                <div class="cell" data-index="20"></div>
+                <div class="cell" data-index="21"></div>
+                <div class="cell" data-index="22"></div>
+                <div class="cell" data-index="23"></div>
+                <div class="cell" data-index="24"></div>
+                <div class="cell" data-index="25"></div>
+                <div class="cell" data-index="26"></div>
+                <div class="cell" data-index="27"></div>
+                <div class="cell" data-index="28"></div>
+                <div class="cell" data-index="29"></div>
+                <div class="cell" data-index="30"></div>
+                <div class="cell" data-index="31"></div>
+                <div class="cell" data-index="32"></div>
+                <div class="cell" data-index="33"></div>
+                <div class="cell" data-index="34"></div>
+                <div class="cell" data-index="35"></div>
+            </div>
+            
+            <div class="game-info">
+                <div class="status" id="status">〇の番です</div>
+            </div>
+            
+            <div class="controls">
+                <button id="reset-btn" class="reset-btn">リセット</button>
+            </div>
+
+            <!-- ゲーム終了後のコントロール -->
+            <!-- <div id="game-end-controls" style="display: none;">
+                <button id="play-again-btn" class="play-again-btn">もう一度プレイ</button>
+            </div> -->
+        </div>
+
+        <!-- CPU対戦選択画面 -->
+        <div class="cpu-selection-screen" id="cpu-selection-screen" style="display: none;">
+            <div class="cpu-selection-content">
+                <h2 class="cpu-title">CPU対戦モード</h2>
+                <p class="cpu-subtitle">先手・後手を選択してください</p>
+                
+                <div class="cpu-options">
+                    <button id="cpu-first-btn" class="cpu-option-btn cpu-first-btn">
+                        <span class="option-icon">👤</span>
+                        <span class="option-text">先手（あなたが先）</span>
+                    </button>
+                    <button id="cpu-second-btn" class="cpu-option-btn cpu-second-btn">
+                        <span class="option-icon">🤖</span>
+                        <span class="option-text">後手（CPUが先）</span>
+                    </button>
+                    <button id="cpu-random-btn" class="cpu-option-btn cpu-random-btn">
+                        <span class="option-icon">🎲</span>
+                        <span class="option-text">ランダム</span>
+                    </button>
+                </div>
+                
+                <button id="back-to-main-from-cpu-btn" class="back-to-main-btn">← メインに戻る</button>
             </div>
         </div>
         
-        <div class="action-buttons">
-            <button id="gravity-btn" class="gravity-btn">重力を使う</button>
-            <div class="gravity-directions" id="gravity-directions" style="display: none;">
-                <button class="direction-btn" data-direction="up">↑</button>
-                <button class="direction-btn" data-direction="left">←</button>
-                <button class="direction-btn" data-direction="right">→</button>
-                <button class="direction-btn" data-direction="down">↓</button>
+        <!-- ヘルプモーダル（ルール等） -->
+        <div class="help-modal" id="help-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>ヘルプ</h2>
+                    <button id="close-help-btn" class="close-btn">×</button>
+                </div>
+                <div class="help-content">
+                    <div class="help-section">
+                        <h3>ゲームルール</h3>
+                        <div class="rules-content">
+                            <div class="rule-item">
+                                <span class="rule-icon">🎯</span>
+                                <span class="rule-text">縦横斜めに4つ以上並んだら勝ち</span>
+                            </div>
+                            <div class="rule-item">
+                                <span class="rule-icon">✨</span>
+                                <span class="rule-text">3つちょうどなら盤面から消える</span>
+                            </div>
+                            <div class="rule-item">
+                                <span class="rule-icon">🌪️</span>
+                                <span class="rule-text">重力：一人一回、上下左右の好きな方向に〇と✕を寄せられる</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="help-section">
+                        <h3>ゲームモード</h3>
+                        <div class="mode-info">
+                            <div class="mode-item">
+                                <span class="mode-icon">👥</span>
+                                <span class="mode-text">二人で遊ぶ：友達と対戦</span>
+                            </div>
+                            <div class="mode-item">
+                                <span class="mode-icon">🤖</span>
+                                <span class="mode-text">CPUと遊ぶ：AIと対戦（準備中）</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="game-board" id="game-board">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
-            <div class="cell" data-index="9"></div>
-            <div class="cell" data-index="10"></div>
-            <div class="cell" data-index="11"></div>
-            <div class="cell" data-index="12"></div>
-            <div class="cell" data-index="13"></div>
-            <div class="cell" data-index="14"></div>
-            <div class="cell" data-index="15"></div>
-            <div class="cell" data-index="16"></div>
-            <div class="cell" data-index="17"></div>
-            <div class="cell" data-index="18"></div>
-            <div class="cell" data-index="19"></div>
-            <div class="cell" data-index="20"></div>
-            <div class="cell" data-index="21"></div>
-            <div class="cell" data-index="22"></div>
-            <div class="cell" data-index="23"></div>
-            <div class="cell" data-index="24"></div>
-            <div class="cell" data-index="25"></div>
-            <div class="cell" data-index="26"></div>
-            <div class="cell" data-index="27"></div>
-            <div class="cell" data-index="28"></div>
-            <div class="cell" data-index="29"></div>
-            <div class="cell" data-index="30"></div>
-            <div class="cell" data-index="31"></div>
-            <div class="cell" data-index="32"></div>
-            <div class="cell" data-index="33"></div>
-            <div class="cell" data-index="34"></div>
-            <div class="cell" data-index="35"></div>
-        </div>
-        
-        <div class="controls">
-            <button id="reset-btn" class="reset-btn">リセット</button>
-        </div>
-        
+        <!-- 勝者モーダル -->
         <div class="winner-modal" id="winner-modal">
             <div class="modal-content">
                 <h2 id="winner-text">〇が勝ちました！</h2>
                 <button id="play-again-btn" class="play-again-btn">もう一度プレイ</button>
+                <button id="back-to-main-btn" class="back-btn">← メインに戻る</button>
             </div>
         </div>
+
+        <!-- ローディングインジケーター -->
+        <div id="loading-indicator" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>重力処理中...</p>
+        </div>
+
     </div>
     
     <script src="script.js"></script>
