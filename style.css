@@ -630,7 +630,7 @@ body {
 
 /* 勝者モーダル */
 .winner-modal {
-    display: none !important; /* 初期状態では非表示を徹底 */
+    /* display: none !important; */ /* 初期状態では非表示を徹底 (JavaScriptで制御するためコメントアウト) */
     position: fixed;
     top: 0;
     left: 0;
