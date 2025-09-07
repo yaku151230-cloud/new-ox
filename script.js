@@ -34,6 +34,15 @@ class TicTacToe {
         document.getElementById('cpu-random-btn').addEventListener('click', () => this.startCpuGame('random'));
         document.getElementById('back-to-main-from-cpu-btn').addEventListener('click', () => this.showMainScreen());
         
+        // ゲーム画面ヘッダーの「メインに戻る」ボタンのイベント
+        const backToMainFromGameBtn = document.getElementById('back-to-main-from-game-btn');
+        if (backToMainFromGameBtn) {
+            backToMainFromGameBtn.addEventListener('click', () => {
+                console.log('ゲーム画面からメインに戻るボタンがクリックされました');
+                this.showMainScreen();
+            });
+        }
+        
         // ヘルプモーダルのイベント
         document.getElementById('help-btn').addEventListener('click', () => this.showHelpModal());
         document.getElementById('close-help-btn').addEventListener('click', () => this.hideHelpModal());
