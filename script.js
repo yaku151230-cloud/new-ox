@@ -1617,6 +1617,8 @@ class TicTacToe {
     }
     
     endGame(isDraw = false, customMessage = '') {
+        console.log('=== END GAME START ==='); // デバッグログ追加
+        console.log('endGame called with isDraw:', isDraw, 'customMessage:', customMessage);
         this.gameActive = false;
         
         if (isDraw) {
