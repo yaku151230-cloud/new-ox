@@ -640,7 +640,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* 最前面に表示を確実にするため、さらに高い値に設定 */
+    z-index: 10000; /* 最前面に表示を確実にするため、さらに高い値に設定 */
     pointer-events: auto; /* モーダル全体でクリックイベントを有効にする */
     color: white;
     font-size: 1.8em;
@@ -728,7 +728,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 9998; /* 他のモーダルやオーバーレイよりは低く */
     color: white;
     font-size: 1.5em;
     flex-direction: column;
