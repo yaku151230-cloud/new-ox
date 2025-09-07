@@ -1640,8 +1640,18 @@ class TicTacToe {
         const modal = document.getElementById('winner-modal');
         const winnerText = document.getElementById('winner-text');
         
+        console.log('showWinnerModal called with message:', message);
+        if (!modal) {
+            console.error('ERROR: winner-modal element not found!');
+            return;
+        }
+        if (!winnerText) {
+            console.error('ERROR: winner-text element not found!');
+            return;
+        }
         winnerText.textContent = message;
         modal.style.display = 'flex';
+        console.log('winner-modal display set to flex. Current display:', modal.style.display);
     }
     
     hideWinnerModal() {
