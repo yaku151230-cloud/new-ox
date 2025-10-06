@@ -306,13 +306,34 @@ class TicTacToe {
             return winningMove;
         }
         
-        // 1.5. 勝利できる手がない理由を詳しく確認
+        // 1.5. 勝利できる手がない理由を詳しく確認 (このログは維持)
         console.log('No direct winning move found, checking why...');
         const potentialWinningMoves = this.findPotentialWinningMoves(this.cpuPlayer);
         console.log('Potential winning moves (including self-destructive):', potentialWinningMoves);
         
-        // 2. 重力を使って防御する場合（条件2：通常の防御でCPU自身のコマが消える場合のみ）
-        // この条件を最優先でチェック（相手のリーチを防ぐため）
+        // 2. 通常の防御手を探す（安全な防御のみ） (元の4)
+        const blockingMove = this.findBlockingMove();
+        console.log('Blocking move check:', blockingMove);
+        if (blockingMove !== -1) {
+            console.log('Normal blocking move found, returning:', blockingMove);
+            return blockingMove;
+        }
+        
+        // 3. 戦略的なランダムな手を選択 (元の5)
+        const randomMove = this.getStrategicRandomMove();
+        console.log('Strategic random move selected, returning:', randomMove);
+        if (randomMove !== -1) {
+            return randomMove;
+        }
+        
+        // 4. 相手が重力で勝つのを防ぐ手を探す (元の2)
+        const blockOpponentGravityWinMove = this.findMoveToBlockOpponentGravityWin();
+        if (blockOpponentGravityWinMove !== -1) {
+            console.log('Block opponent gravity win move found, returning:', blockOpponentGravityWinMove);
+            return blockOpponentGravityWinMove;
+        }
+        
+        // 5. 重力を使って防御する場合（条件2：通常の防御でCPU自身のコマが消える場合のみ） (元の3)
         if (!this.gravityUsed[this.cpuPlayer]) {
             console.log('Checking if gravity is needed for defense (opponent reach + CPU piece loss)...');
             const defensiveGravity = this.findDefensiveGravityMove();
@@ -323,9 +344,11 @@ class TicTacToe {
                 this.useGravity(defensiveGravity);
                 return 'gravity';
             }
+        } else {
+            console.log('Gravity already used by CPU (for defensive purposes)');
         }
         
-        // 3. 重力を使って確実に勝利できる場合（条件1）
+        // 6. 重力を使って確実に勝利できる場合（条件1） (元の4)
         if (!this.gravityUsed[this.cpuPlayer]) {
             console.log('Checking if gravity can provide a winning move...');
             const winningGravity = this.findWinningGravityMove();
@@ -336,22 +359,12 @@ class TicTacToe {
                 return 'gravity';
             }
         } else {
-            console.log('Gravity already used by CPU');
+            console.log('Gravity already used by CPU (for winning purposes)');
         }
         
-        // 4. 通常の防御手を探す（安全な防御のみ）
-        const blockingMove = this.findBlockingMove();
-        console.log('Blocking move check:', blockingMove);
-        if (blockingMove !== -1) {
-            console.log('Normal blocking move found:', blockingMove);
-            return blockingMove;
-        }
-        
-        // 5. 戦略的なランダムな手を選択
-        const randomMove = this.getStrategicRandomMove();
-        console.log('Random move selected:', randomMove);
+        console.log('No valid moves found, returning -1.');
         console.log('=== getCpuMove END ===');
-        return randomMove;
+        return -1; // 有効な手が見つからない場合
     }
     
     // 勝利できる手を探す
@@ -616,62 +629,129 @@ class TicTacToe {
         console.log('=== getStrategicRandomMove START ===');
         console.log('getStrategicRandomMove called');
         const emptyCells = [];
-        const strategicCells = [];
-        const safeCells = [];
-        
-        for (let i = 0; i < 36; i++) {
-            if (this.board[i] === '') {
-                emptyCells.push(i);
-                
-                // CPU自身のコマが三つ揃って消える手は避ける
-                if (this.wouldCpuLosePieces(i)) {
-                    console.log('Avoiding move that would cause CPU pieces to disappear:', i);
-                    continue;
-                }
-                
-                // 戦略的な位置かチェック（既存のCPUコマの隣）
-                if (this.isStrategicPosition(i)) {
-                    strategicCells.push(i);
-                }
-                
-                // 安全な手（CPU自身のコマが消えない）
-                safeCells.push(i);
-            }
-        }
-        
-        console.log('Empty cells:', emptyCells.length, 'Strategic cells:', strategicCells.length, 'Safe cells:', safeCells.length);
-        
-        // 戦略的な位置がある場合はそこから選択
-        if (strategicCells.length > 0) {
-            const selected = strategicCells[Math.floor(Math.random() * strategicCells.length)];
-            console.log('Selected strategic position:', selected);
-            console.log('=== getStrategicRandomMove END (strategic) ===');
-            return selected;
-        }
-        
-        // 戦略的な位置がない場合は安全な手から選択
-        if (safeCells.length > 0) {
-            const selected = safeCells[Math.floor(Math.random() * safeCells.length)];
-            console.log('Selected safe position:', selected);
-            console.log('=== getStrategicRandomMove END (safe) ===');
-            return selected;
-        }
-        
-        // 安全な手がない場合は通常のランダム選択（緊急時）
-        if (emptyCells.length > 0) {
-            const selected = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            console.log('Selected random position (emergency):', selected);
-            console.log('=== getStrategicRandomMove END (emergency) ===');
-            return selected;
-        }
-        
-        console.log('No valid moves found');
-        console.log('=== getStrategicRandomMove END (no moves) ===');
-        return -1;
+        const highlyStrategicCells = []; // 自分のコマと相手のコマの両方に隣接
+        const myStrategicCells = [];     // 自分のコマにのみ隣接
+        const opponentStrategicCells = []; // 相手のコマにのみ隣接
+        const otherSafeCells = [];       // その他の安全なセル
+        const centralCells = [];           // 中央16マス
+        const centralMyStrategicCells = []; // 中央16マスかつ自分のコマに隣接
+        const centralOpponentStrategicCells = []; // 中央16マスかつ相手のコマに隣接
+         
+         for (let i = 0; i < 36; i++) {
+             if (this.board[i] === '') {
+                 emptyCells.push(i);
+                 
+                 // CPU自身のコマが三つ揃って消える手は避ける
+                 if (this.wouldCpuLosePieces(i)) {
+                     console.log('Avoiding move that would cause CPU pieces to disappear:', i);
+                     continue;
+                 }
+                 
+                 const isNearMe = this.isNearPlayer(i, this.cpuPlayer);
+                 const isNearOpponent = this.isNearPlayer(i, this.humanPlayer);
+                 
+                 const row = Math.floor(i / 6);
+                 const col = i % 6;
+                 const isCentral = (row >= 1 && row <= 4 && col >= 1 && col <= 4); // 中央16マス (1-4行, 1-4列)
+                 
+                 if (isCentral) {
+                     centralCells.push(i);
+                     if (isNearMe) {
+                         centralMyStrategicCells.push(i);
+                     }
+                     if (isNearOpponent) {
+                         centralOpponentStrategicCells.push(i);
+                     }
+                 }
+                 
+                 if (isNearMe && isNearOpponent) {
+                     highlyStrategicCells.push(i);
+                 } else if (isNearMe) {
+                     myStrategicCells.push(i);
+                 } else if (isNearOpponent) {
+                     opponentStrategicCells.push(i);
+                 } else {
+                     otherSafeCells.push(i);
+                 }
+             }
+         }
+         
+         console.log('Empty cells:', emptyCells.length, 'Highly strategic:', highlyStrategicCells.length, 'My strategic:', myStrategicCells.length, 'Opponent strategic:', opponentStrategicCells.length, 'Other safe:', otherSafeCells.length, 'Central cells:', centralCells.length, 'Central my strategic:', centralMyStrategicCells.length, 'Central opponent strategic:', centralOpponentStrategicCells.length);
+         
+         // 新しい優先順位:
+         // 1. 中央16マスかつ自分のコマに隣接
+         // 2. 中央16マスかつ相手のコマに隣接 (自分のコマには隣接しないもの)
+         // 3. その他の戦略的なセル (中央以外で自分のコマに隣接)
+         // 4. その他の戦略的なセル (中央以外で相手のコマに隣接)
+         // 5. 中央のその他の安全なセル
+         // 6. その他の安全なセル
+         // 7. 残りの空いているセル
+         
+         // 1. 中央16マスかつ自分のコマに隣接 (centralMyStrategicCells)
+         if (centralMyStrategicCells.length > 0) {
+             const selected = centralMyStrategicCells[Math.floor(Math.random() * centralMyStrategicCells.length)];
+             console.log('Selected central and my strategic position:', selected);
+             return selected;
+         }
+         
+         // 2. 中央16マスかつ相手のコマに隣接 (centralOpponentStrategicCells - 自分のコマに隣接しないもの)
+         const purelyCentralOpponentStrategic = centralOpponentStrategicCells.filter(cell => !myStrategicCells.includes(cell) && !highlyStrategicCells.includes(cell));
+         if (purelyCentralOpponentStrategic.length > 0) {
+             const selected = purelyCentralOpponentStrategic[Math.floor(Math.random() * purelyCentralOpponentStrategic.length)];
+             console.log('Selected central and purely opponent strategic position:', selected);
+             return selected;
+         }
+         
+         // 3. その他の戦略的なセル (中央以外で自分のコマに隣接 - highlyStrategicCells も含む)
+         const nonCentralMyStrategicOrHighly = myStrategicCells.filter(cell => !centralCells.includes(cell))
+                                                 .concat(highlyStrategicCells.filter(cell => !centralCells.includes(cell)));
+         if (nonCentralMyStrategicOrHighly.length > 0) {
+             const selected = nonCentralMyStrategicOrHighly[Math.floor(Math.random() * nonCentralMyStrategicOrHighly.length)];
+             console.log('Selected non-central my strategic or highly strategic position:', selected);
+             return selected;
+         }
+         
+         // 4. その他の戦略的なセル (中央以外で相手のコマに隣接 - 自分のコマには隣接しないもの)
+         const nonCentralPurelyOpponentStrategic = opponentStrategicCells.filter(cell => !centralCells.includes(cell) && !this.isNearPlayer(cell, this.cpuPlayer));
+         if (nonCentralPurelyOpponentStrategic.length > 0) {
+             const selected = nonCentralPurelyOpponentStrategic[Math.floor(Math.random() * nonCentralPurelyOpponentStrategic.length)];
+             console.log('Selected non-central purely opponent strategic position:', selected);
+             return selected;
+         }
+         
+         // 5. 中央のその他の安全なセル
+         const remainingCentralSafeCells = centralCells.filter(cell => 
+             !centralMyStrategicCells.includes(cell) && 
+             !centralOpponentStrategicCells.includes(cell) && // 中央の相手戦略も除外
+             !highlyStrategicCells.includes(cell) // 中央の両隣接も除外
+         );
+         if (remainingCentralSafeCells.length > 0) {
+             const selected = remainingCentralSafeCells[Math.floor(Math.random() * remainingCentralSafeCells.length)];
+             console.log('Selected remaining central safe position:', selected);
+             return selected;
+         }
+         
+         // 6. その他の安全なセル (中央16マス以外で、自分のコマにも相手のコマにも隣接しないもの)
+         const trulyOtherSafeCells = otherSafeCells.filter(cell => !centralCells.includes(cell));
+         if (trulyOtherSafeCells.length > 0) {
+             const selected = trulyOtherSafeCells[Math.floor(Math.random() * trulyOtherSafeCells.length)];
+             console.log('Selected truly other safe position:', selected);
+             return selected;
+         }
+         
+         // 7. 残りの空いているセル（wouldLosePiecesでフィルタリング済み）
+         if (emptyCells.length > 0) {
+             const selected = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+             console.log('Selected random position (emergency, filtered by wouldLosePieces):', selected);
+             return selected;
+         }
+         
+         console.log('No valid moves found at all for strategic random placement.');
+         return -1;
     }
     
     // 戦略的な位置かチェック
-    isStrategicPosition(index) {
+    isNearPlayer(index, player) {
         const row = Math.floor(index / 6);
         const col = index % 6;
         
@@ -688,8 +768,8 @@ class TicTacToe {
             
             if (newRow >= 0 && newRow < 6 && newCol >= 0 && newCol < 6) {
                 const neighborIndex = newRow * 6 + newCol;
-                if (this.board[neighborIndex] === this.cpuPlayer) {
-                    console.log(`Strategic position found at ${index}, neighbor at ${neighborIndex} has CPU piece`);
+                if (this.board[neighborIndex] === player) {
+                    console.log(`Position ${index} is near ${player} piece at ${neighborIndex}`);
                     return true;
                 }
             }
@@ -1103,13 +1183,15 @@ class TicTacToe {
         } else if (oWins) {
             console.log('O wins after gravity');
             this.hideLoadingIndicator(); // ローディングインジケーターを非表示
-            this.endGame(false);
+            // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
+            this.endGame(false, '〇が勝ちました！');
             this.gameActive = false; // ゲームを終了
             return;
         } else if (xWins) {
             console.log('X wins after gravity');
             this.hideLoadingIndicator(); // ローディングインジケーターを非表示
-            this.endGame(false);
+            // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
+            this.endGame(false, '✕が勝ちました！');
             this.gameActive = false; // ゲームを終了
             return;
         }
@@ -1258,14 +1340,16 @@ class TicTacToe {
                             } else if (oWins) {
                                 console.log('連鎖重力中に〇の勝利を検出');
                                 this.hideLoadingIndicator(); // ローディングインジケーターを非表示
-                                this.endGame(false);
+                                // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
+                                this.endGame(false, '〇が勝ちました！');
                                 this.gameActive = false; // ゲームを終了
                                 resolve(); // ゲーム終了時はresolveしてPromiseを終了
                                 return;
                             } else if (xWins) {
                                 console.log('連鎖重力中に✕の勝利を検出');
                                 this.hideLoadingIndicator(); // ローディングインジケーターを非表示
-                                this.endGame(false);
+                                // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
+                                this.endGame(false, '✕が勝ちました！');
                                 this.gameActive = false; // ゲームを終了
                                 resolve(); // ゲーム終了時はresolveしてPromiseを終了
                                 return;
@@ -1640,7 +1724,10 @@ class TicTacToe {
             // 勝利ラインをハイライト表示
             this.highlightWinningLine();
             
-            this.showWinnerModal(message);
+            // 0.5秒待ってから勝利モーダルを表示
+            setTimeout(() => {
+                this.showWinnerModal(message);
+            }, 500); // 0.5秒の遅延
         }
         // ゲーム終了時にゲームボードのクリックを無効にし、「もう一度プレイ」ボタンを表示
         // document.getElementById('game-board').classList.add('disabled');
@@ -2331,6 +2418,65 @@ class TicTacToe {
 
     hideLoadingIndicator() {
         document.getElementById('loading-indicator').style.display = 'none';
+    }
+
+    // 相手が重力を使って勝利できる場合をコマで防ぐ手を探す
+    findMoveToBlockOpponentGravityWin() {
+        console.log('=== FIND MOVE TO BLOCK OPPONENT GRAVITY WIN ===');
+        console.log('Current board state:', [...this.board]);
+        
+        // 相手が重力を使用済みであれば、この防御は不要
+        if (this.gravityUsed[this.humanPlayer]) {
+            console.log('Opponent has already used gravity. No need to block gravity win.');
+            return -1;
+        }
+        
+        const directions = ['up', 'down', 'left', 'right'];
+        const emptyCells = [];
+        for (let i = 0; i < 36; i++) {
+            if (this.board[i] === '') {
+                emptyCells.push(i);
+            }
+        }
+        
+        if (emptyCells.length === 0) {
+            console.log('No empty cells to place a blocking piece.');
+            return -1;
+        }
+        
+        // 各空きマスにCPUのコマを置いて、相手の重力勝利を防げるかシミュレート
+        for (const blockMove of emptyCells) {
+            console.log(`Testing blocking move at position: ${blockMove}`);
+            
+            // 一時的にCPUのコマを配置
+            this.board[blockMove] = this.cpuPlayer;
+            
+            let canBlockAllGravityWins = true;
+            for (const direction of directions) {
+                // CPUがコマを置いた後の盤面で、相手が重力を使った場合のシミュレート
+                // このシミュレーションはthis.boardではなく、コピーされたボードに対して行うべき
+                // ここではthis.boardが一時的に変更されているので、それを元にsimulateGravityを呼ぶ
+                const simulatedBoardAfterCpuBlockAndOpponentGravity = this.simulateGravity(direction);
+                
+                // シミュレートされた盤面で相手が勝利するかチェック
+                if (this.checkWinnerForSimulatedBoard(simulatedBoardAfterCpuBlockAndOpponentGravity, this.humanPlayer)) {
+                    console.log(`Opponent can still win with gravity ${direction} even with CPU blocking at ${blockMove}.`);
+                    canBlockAllGravityWins = false;
+                    break;
+                }
+            }
+            
+            // 元に戻す
+            this.board[blockMove] = '';
+            
+            if (canBlockAllGravityWins) {
+                console.log(`Found a move to block all opponent gravity wins at: ${blockMove}`);
+                return blockMove;
+            }
+        }
+        
+        console.log('No move found to block opponent gravity wins.');
+        return -1;
     }
 }
 
