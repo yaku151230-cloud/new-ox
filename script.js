@@ -1182,16 +1182,16 @@ class TicTacToe {
             return;
         } else if (oWins) {
             console.log('O wins after gravity');
-            this.hideLoadingIndicator(); // ローディングインジケーターを非表示
             // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
-            this.endGame(false, '〇が勝ちました！');
+            // ローディングはここで消さず、endGame内で即時表示の直前に消す
+            this.endGame(false, '〇が勝ちました！', true);
             this.gameActive = false; // ゲームを終了
             return;
         } else if (xWins) {
             console.log('X wins after gravity');
-            this.hideLoadingIndicator(); // ローディングインジケーターを非表示
             // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
-            this.endGame(false, '✕が勝ちました！');
+            // ローディングはここで消さず、endGame内で即時表示の直前に消す
+            this.endGame(false, '✕が勝ちました！', true);
             this.gameActive = false; // ゲームを終了
             return;
         }
@@ -1339,17 +1339,17 @@ class TicTacToe {
                                 return;
                             } else if (oWins) {
                                 console.log('連鎖重力中に〇の勝利を検出');
-                                this.hideLoadingIndicator(); // ローディングインジケーターを非表示
                                 // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
-                                this.endGame(false, '〇が勝ちました！');
+                                // ローディングはここで消さず、endGame内で即時表示の直前に消す
+                                this.endGame(false, '〇が勝ちました！', true);
                                 this.gameActive = false; // ゲームを終了
                                 resolve(); // ゲーム終了時はresolveしてPromiseを終了
                                 return;
                             } else if (xWins) {
                                 console.log('連鎖重力中に✕の勝利を検出');
-                                this.hideLoadingIndicator(); // ローディングインジケーターを非表示
                                 // 重力では手番側が負ける可能性があるため、実際の勝者に基づき明示的にメッセージを表示
-                                this.endGame(false, '✕が勝ちました！');
+                                // ローディングはここで消さず、endGame内で即時表示の直前に消す
+                                this.endGame(false, '✕が勝ちました！', true);
                                 this.gameActive = false; // ゲームを終了
                                 resolve(); // ゲーム終了時はresolveしてPromiseを終了
                                 return;
@@ -1709,9 +1709,9 @@ class TicTacToe {
         }
     }
     
-    endGame(isDraw = false, customMessage = '') {
+    endGame(isDraw = false, customMessage = '', showImmediately = false) {
         console.log('=== END GAME START ==='); // デバッグログ追加
-        console.log('endGame called with isDraw:', isDraw, 'customMessage:', customMessage);
+        console.log('endGame called with isDraw:', isDraw, 'customMessage:', customMessage, 'showImmediately:', showImmediately);
         this.gameActive = false;
         
         if (isDraw) {
@@ -1724,10 +1724,16 @@ class TicTacToe {
             // 勝利ラインをハイライト表示
             this.highlightWinningLine();
             
-            // 0.5秒待ってから勝利モーダルを表示
-            setTimeout(() => {
+            if (showImmediately) {
+                // 重力勝利時: ローディングを消して即時に勝利モーダル表示
+                this.hideLoadingIndicator();
                 this.showWinnerModal(message);
-            }, 500); // 0.5秒の遅延
+            } else {
+                // 0.5秒待ってから勝利モーダルを表示
+                setTimeout(() => {
+                    this.showWinnerModal(message);
+                }, 500); // 0.5秒の遅延
+            }
         }
         // ゲーム終了時にゲームボードのクリックを無効にし、「もう一度プレイ」ボタンを表示
         // document.getElementById('game-board').classList.add('disabled');
