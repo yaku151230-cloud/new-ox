@@ -774,6 +774,9 @@ body {
 
 @media (max-width: 600px) {
     /* スマホ用の縦長レイアウト最適化 */
+    .winner-modal {
+        display: none; /* スマホ初期表示では勝者モーダルを非表示にする */
+    }
     .main-screen {
         padding: 0;
         background: rgba(255, 255, 255, 0.95); /* 元の配色に戻す */
