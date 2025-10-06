@@ -77,6 +77,23 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: bold;
+    line-height: 1.1;
+    position: relative;
+}
+/* タイトル内の装飾 */
+.title-new {
+    display: inline-block;
+    font-size: 1.4rem; /* 小さく */
+    transform: translateX(-12px); /* 左にずらす */
+}
+
+.title-main {
+    display: inline-block;
+}
+
+/* タイトル全体を少し上に */
+.main-content {
+    margin-top: -12px; /* 全体を上へ少し移動 */
 }
 
 .game-mode-buttons {
