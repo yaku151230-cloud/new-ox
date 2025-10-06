@@ -83,8 +83,8 @@ body {
 /* タイトル内の装飾 */
 .title-new {
     display: inline-block;
-    font-size: 1.4rem; /* 小さく */
-    transform: translateX(-12px); /* 左にずらす */
+    font-size: 1.8rem; /* 小さく */
+    transform: translateX(-100px); /* 左にずらす */
 }
 
 .title-main {
@@ -93,7 +93,7 @@ body {
 
 /* タイトル全体を少し上に */
 .main-content {
-    margin-top: -12px; /* 全体を上へ少し移動 */
+    margin-top: 20px; /* 全体を上へ少し移動 */
 }
 
 .game-mode-buttons {
