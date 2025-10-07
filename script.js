@@ -43,8 +43,12 @@ class TicTacToe {
             });
         }
         
-        // ヘルプモーダルのイベント
+        // ヘルプモーダルのイベント（メイン・ゲーム両方）
         document.getElementById('help-btn').addEventListener('click', () => this.showHelpModal());
+        const helpBtnGame = document.getElementById('help-btn-game');
+        if (helpBtnGame) {
+            helpBtnGame.addEventListener('click', () => this.showHelpModal());
+        }
         document.getElementById('close-help-btn').addEventListener('click', () => this.hideHelpModal());
         
         // ヘルプモーダルの外側クリックで閉じる
@@ -1702,7 +1706,7 @@ class TicTacToe {
         
         if (canUseGravity) {
             gravityBtn.disabled = false;
-            gravityBtn.textContent = '重力を使う';
+            gravityBtn.textContent = '重力';
         } else {
             gravityBtn.disabled = true;
             gravityBtn.textContent = '重力使用済み';
