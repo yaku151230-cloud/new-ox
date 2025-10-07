@@ -1709,7 +1709,7 @@ class TicTacToe {
             gravityBtn.textContent = '重力';
         } else {
             gravityBtn.disabled = true;
-            gravityBtn.textContent = '重力使用済み';
+            gravityBtn.textContent = '重力';
         }
     }
     
@@ -2494,3 +2494,4 @@ class TicTacToe {
 document.addEventListener('DOMContentLoaded', () => {
     new TicTacToe();
 });
+
