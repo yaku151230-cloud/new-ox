@@ -62,4 +62,4 @@
 ```bash
 git clone [https://github.com/あなたのユーザー名/リポジトリ名.git](https://github.com/あなたのユーザー名/リポジトリ名.git)
 cd リポジトリ名
-# あとは VS Code の Live Server などで index.html を起動してください。
+# あとはindex.html を起動してください。
