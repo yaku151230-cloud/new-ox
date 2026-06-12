@@ -60,6 +60,6 @@
 ローカル環境で動かす場合は、リポジトリをクローンするかダウンロードし、`index.html` をブラウザで開くだけで今すぐプレイ可能です。
 
 ```bash
-git clone [https://github.com/あなたのユーザー名/リポジトリ名.git](https://github.com/あなたのユーザー名/リポジトリ名.git)
-cd リポジトリ名
+git clone https://github.com/yaku151230-cloud/new-ox.git
+cd new-ox
 # あとはindex.html を起動してください。
