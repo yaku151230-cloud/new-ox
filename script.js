@@ -4,24 +4,28 @@ class TicTacToe {
         this.currentPlayer = 'o';
         this.gameActive = true;
         this.gravityUsed = { o: false, x: false };
-        this.lastGravityDirection = null; // 最後に使った重力の方向を保存
+        this.lastGravityDirection = null; 
         
         // CPU対戦モード用の変数
         this.isCpuMode = false;
-        this.cpuPlayer = 'x'; // CPUは✕として動作
-        this.humanPlayer = 'o'; // プレイヤーは〇として動作
+        this.cpuPlayer = 'x'; 
+        this.humanPlayer = 'o'; 
         
         // 設定・難易度用変数
         this.animationSpeed = 'normal';
         this.currentTheme = 'default';
         this.difficulty = 'easy';
-        this.isGuideMode = true; // 初心者ガイドフラグ
+        this.isGuideMode = true; 
         
-        // 1秒間隔点滅プレビュー用の管理変数
+        // 点滅プレビュー用の管理変数
         this.previewInterval = null;
-        this.previewState = 'actual'; // 'actual' (現在) もしくは 'future' (未来)
+        this.previewState = 'actual'; 
         
-        this.hideWinnerModal(); // コンストラクタでモーダルを確実に非表示にする
+        // 📱 スマホ用の「選択中（タップ1回目）」管理変数
+        this.selectedCellIndex = -1; // 現在仮選択されているセルのインデックス
+        this.selectedDirection = null; // 現在プレビュー選択されている重力の方向
+        
+        this.hideWinnerModal(); 
         this.initializeGame();
     }
 
@@ -29,7 +33,7 @@ class TicTacToe {
         this.bindEvents();
         this.updateStatus();
         this.updateGravityButton();
-        this.hideWinnerModal(); // ゲーム初期化時にもモーダルを確実に非表示にする
+        this.hideWinnerModal(); 
     }
     
     bindEvents() {
@@ -48,13 +52,12 @@ class TicTacToe {
         document.getElementById('diff-normal-btn').addEventListener('click', () => this.setDifficulty('normal'));
         document.getElementById('diff-hard-btn').addEventListener('click', () => this.setDifficulty('hard'));
         
-        // 外部メインに戻るボタン
         const backToMainFromGameBtn = document.getElementById('back-to-main-from-game-btn');
         if (backToMainFromGameBtn) {
             backToMainFromGameBtn.addEventListener('click', () => this.showMainScreen());
         }
         
-        // ヘルプ・設定モーダルの開閉
+        // モーダルの開閉
         document.getElementById('help-btn').addEventListener('click', () => this.showHelpModal());
         const helpBtnGame = document.getElementById('help-btn-game');
         if (helpBtnGame) helpBtnGame.addEventListener('click', () => this.showHelpModal());
@@ -65,17 +68,14 @@ class TicTacToe {
         if (settingsBtnGame) settingsBtnGame.addEventListener('click', () => this.showSettingsModal());
         document.getElementById('close-settings-btn').addEventListener('click', () => this.hideSettingsModal());
         
-        // 設定切り替えイベント
+        // 設定切り替え
         document.getElementById('speed-normal-btn').addEventListener('click', () => this.setAnimationSpeed('normal'));
         document.getElementById('speed-fast-btn').addEventListener('click', () => this.setAnimationSpeed('fast'));
         document.getElementById('theme-default-btn').addEventListener('click', () => this.setTheme('default'));
         document.getElementById('theme-dark-btn').addEventListener('click', () => this.setTheme('dark'));
-        
-        // ガイドモードON/OFF切り替えイベント
         document.getElementById('guide-on-btn').addEventListener('click', () => this.setGuideMode(true));
         document.getElementById('guide-off-btn').addEventListener('click', () => this.setGuideMode(false));
         
-        // モーダルの外側クリックで閉じる
         document.getElementById('help-modal').addEventListener('click', (e) => {
             if (e.target.id === 'help-modal') this.hideHelpModal();
         });
@@ -83,7 +83,7 @@ class TicTacToe {
             if (e.target.id === 'settings-modal') this.hideSettingsModal();
         });
         
-        // セルのクリック ＆ マウスホバーイベント
+        // 👻 1.改良：セルのクリック & ホバーイベント（スマホの2ステップ配置に対応）
         const cells = document.querySelectorAll('.cell');
         cells.forEach(cell => {
             cell.addEventListener('click', (e) => this.handleCellClick(e));
@@ -94,11 +94,21 @@ class TicTacToe {
         // 重力ボタンのイベント
         document.getElementById('gravity-btn').addEventListener('click', () => this.showGravityDirections());
         
-        // 🌎 改良：方向ボタンへのホバー（1秒間隔での現在⇄未来の交互点滅プレビュー）
+        // 🌎 2.改良：方向ボタンへのクリック（スマホの2ステッププレビューに対応）
         document.querySelectorAll('.direction-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.useGravity(e.target.dataset.direction));
-            btn.addEventListener('mouseenter', (e) => this.startGravityPreview(e.target.dataset.direction));
-            btn.addEventListener('mouseleave', () => this.stopGravityPreview());
+            btn.addEventListener('click', (e) => this.handleDirectionClick(e));
+            btn.addEventListener('mouseenter', (e) => {
+                // PC用：ホバー時にプレビュー開始
+                if (window.matchMedia('(hover: hover)').matches) {
+                    this.startGravityPreview(e.target.dataset.direction);
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                // PC用：ホバーが外れたら停止
+                if (window.matchMedia('(hover: hover)').matches) {
+                    this.stopGravityPreview();
+                }
+            });
         });
         
         const resetBtn = document.getElementById('reset-btn');
@@ -140,6 +150,15 @@ class TicTacToe {
         document.getElementById('guide-on-btn').classList.toggle('active', isOn);
         document.getElementById('guide-off-btn').classList.toggle('active', !isOn);
         this.stopGravityPreview();
+        this.clearSelectionStates();
+    }
+
+    // 選択状態の完全クリーンアップ
+    clearSelectionStates() {
+        this.selectedCellIndex = -1;
+        this.selectedDirection = null;
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected-candidate', 'danger-warning'));
+        document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('preview-active'));
     }
     
     startCpuGame(mode) {
@@ -192,8 +211,9 @@ class TicTacToe {
         document.body.classList.toggle('dark-theme', theme === 'dark');
     }
 
+    // PC用ホバー処理（スマホでは無効化される）
     handleCellMouseEnter(e) {
-        if (!this.gameActive || !this.isGuideMode) return;
+        if (!this.gameActive || !this.isGuideMode || !window.matchMedia('(hover: hover)').matches) return;
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
 
         const cell = e.target;
@@ -203,27 +223,25 @@ class TicTacToe {
             this.board[index] = this.currentPlayer;
             const isDanger = this.wouldCpuLosePieces(index);
             this.board[index] = '';
-
             if (isDanger) cell.classList.add('danger-warning');
         }
     }
 
     handleCellMouseLeave(e) {
-        e.target.classList.remove('danger-warning');
+        if (window.matchMedia('(hover: hover)').matches) {
+            e.target.classList.remove('danger-warning');
+        }
     }
 
-    // 🌎 新機能：1秒ごとに現在と未来を交互にパッパッと見せるプレビューの開始
+    // 🌎 重力点滅プレビューの開始（PC/スマホ共通コア処理）
     startGravityPreview(direction) {
         if (!this.gameActive || !this.isGuideMode) return;
-        
-        // 既存のタイマーがあれば一度消去
         if (this.previewInterval) clearInterval(this.previewInterval);
         
         const simulatedBoard = this.simulateGravity(direction);
-        this.previewState = 'future'; // ホバーした瞬間はまず未来を見せる
+        this.previewState = 'future';
         this.renderPreviewFrame(simulatedBoard);
         
-        // 1000ms (1秒) 間隔で状態を交互に入れ替える
         this.previewInterval = setInterval(() => {
             if (this.previewState === 'future') {
                 this.previewState = 'actual';
@@ -240,10 +258,29 @@ class TicTacToe {
             clearInterval(this.previewInterval);
             this.previewInterval = null;
         }
-        this.renderActualFrame(); // 完全に元の現在の盤面に戻す
+        this.renderActualFrame();
     }
 
-    // 未来の予測盤面（半透明）をレンダリングする
+    // 🌎 スマホ用：重力方向ボタンをタップした時のトグル制御
+    handleDirectionClick(e) {
+        if (!this.gameActive) return;
+        if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
+
+        const btn = e.target.closest('.direction-btn');
+        const direction = btn.dataset.direction;
+
+        // ガイドモードがOFF、または既にその方向がプレビュー中の場合は、2回目のタップとみなして実行
+        if (!this.isGuideMode || this.selectedDirection === direction) {
+            this.useGravity(direction);
+        } else {
+            // 1回目のタップ：他のボタンのハイライトを消し、この方向のプレビューを開始
+            document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('preview-active'));
+            btn.classList.add('preview-active');
+            this.selectedDirection = direction;
+            this.startGravityPreview(direction);
+        }
+    }
+
     renderPreviewFrame(simulatedBoard) {
         const cells = document.querySelectorAll('.cell');
         cells.forEach((cell, index) => {
@@ -258,7 +295,6 @@ class TicTacToe {
         });
     }
 
-    // 現在のリアルタイムな盤面をレンダリングする
     renderActualFrame() {
         const cells = document.querySelectorAll('.cell');
         cells.forEach((cell, index) => {
@@ -273,6 +309,7 @@ class TicTacToe {
         });
     }
     
+    // 👻 スマホ用：セルをタップした時の2ステップ配置（自爆警告対応）
     async handleCellClick(e) {
         if (!this.gameActive) return;
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
@@ -281,7 +318,33 @@ class TicTacToe {
         const index = parseInt(cell.dataset.index);
         if (this.board[index] !== '') return;
         
-        cell.classList.remove('danger-warning');
+        // 重力プレビューが開いている状態で盤面が押されたら、プレビューをキャンセルする
+        if (this.selectedDirection) {
+            this.stopGravityPreview();
+            this.selectedDirection = null;
+            document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('preview-active'));
+            return;
+        }
+
+        // ガイドモードがONの場合の2ステップ判定
+        if (this.isGuideMode) {
+            if (this.selectedCellIndex !== index) {
+                // 1回目のタップ：今までの仮選択を解除し、新しいマスを仮選択する
+                this.clearSelectionStates();
+                this.selectedCellIndex = index;
+                cell.classList.add('selected-candidate');
+
+                // 自爆チェックを行って警告する
+                this.board[index] = this.currentPlayer;
+                const isDanger = this.wouldCpuLosePieces(index);
+                this.board[index] = '';
+                if (isDanger) cell.classList.add('danger-warning');
+                return; // ここで処理を止め、配置は保留にする
+            }
+        }
+
+        // 2回目のタップ（またはガイドOFF）の時、実際にコマを配置する
+        this.clearSelectionStates();
         await this.makeMove(index);
         
         if (this.gameActive) {
@@ -504,16 +567,15 @@ class TicTacToe {
         directions.style.display = directions.style.display === 'flex' ? 'none' : 'flex';
     }
     
-    // 🌎 実行時の改良：クリックしたら一度完全に点滅を止め、元の盤面に戻してから0.3秒（300ms）の「タメ」を作る
     async useGravity(direction) {
         if (this.gravityUsed[this.currentPlayer]) return;
         this.gravityUsed[this.currentPlayer] = true;
         this.lastGravityDirection = direction;
         document.getElementById('gravity-directions').style.display = 'none';
         
-        this.stopGravityPreview(); // 点滅プレビューを完全に停止し、現在の盤面に戻す
+        this.stopGravityPreview(); 
+        this.clearSelectionStates(); // 選択状態をリセット
         
-        // 300ms（0.3秒）待つことで、「一拍のタメ」を演出してプレイヤーの心の準備を促す
         await this.sleep(300);
         await this.applyGravity(direction);
     }
@@ -624,12 +686,12 @@ class TicTacToe {
         cells.forEach((cell, index) => {
             const value = this.board[index];
             if (value !== '') {
-                cell.textContent = value === 'o' ? '〇' : '✕'; cell.classList.remove('o', 'x', 'preview-o', 'preview-x'); cell.classList.add(value, 'moving');
+                cell.textContent = value === 'o' ? '〇' : '✕'; cell.classList.remove('o', 'x', 'preview-o', 'preview-x', 'selected-candidate'); cell.classList.add(value, 'moving');
                 if (this.animationSpeed === 'normal') {
                     animationPromises.push(new Promise(resolve => { setTimeout(() => { cell.classList.remove('moving'); resolve(); }, 400); }));
                 } else cell.classList.remove('moving');
             } else {
-                cell.textContent = ''; cell.classList.remove('o', 'x', 'moving', 'preview-o', 'preview-x');
+                cell.textContent = ''; cell.classList.remove('o', 'x', 'moving', 'preview-o', 'preview-x', 'selected-candidate');
                 cell.style.background = ''; cell.style.boxShadow = '';
             }
         });
@@ -708,9 +770,7 @@ class TicTacToe {
         } else if (direction === 'down') {
             for (let col = 0; col < 6; col++) {
                 let w = 30 + col; for (let row = 5; row >= 0; row--) {
-                    const r = row * 6 + col; if (currentBoard[r] !== '') {
-                        newBoard[w] = currentBoard[r]; w -= 6;
-                    }
+                    const r = row * 6 + col; if (currentBoard[r] !== '') { newBoard[w] = currentBoard[r]; w -= 6; }
                 }
             }
         } else if (direction === 'left') {
@@ -722,9 +782,7 @@ class TicTacToe {
         } else if (direction === 'right') {
             for (let row = 0; row < 6; row++) {
                 let w = row * 6 + 5; for (let col = 5; col >= 0; col--) {
-                    const r = row * 6 + col; if (currentBoard[r] !== '') {
-                        newBoard[w] = currentBoard[r]; w--;
-                    }
+                    const r = row * 6 + col; if (currentBoard[r] !== '') { newBoard[w] = currentBoard[r]; w--; }
                 }
             }
         }
@@ -828,6 +886,7 @@ class TicTacToe {
         this.currentPlayer = this.isCpuMode ? (this.initialStartingPlayer || 'o') : 'o';
         this.clearBoard(); this.updateStatus(); this.updateGravityButton(); this.hideWinnerModal();
         document.getElementById('gravity-directions').style.display = 'none';
+        this.clearSelectionStates();
     }
     
     playAgain() {
@@ -839,7 +898,7 @@ class TicTacToe {
     
     clearBoard() {
         document.querySelectorAll('.cell').forEach(cell => {
-            cell.textContent = ''; cell.classList.remove('o', 'x', 'removing', 'moving', 'winning-cell', 'danger-warning', 'preview-o', 'preview-x');
+            cell.textContent = ''; cell.classList.remove('o', 'x', 'removing', 'moving', 'winning-cell', 'danger-warning', 'preview-o', 'preview-x', 'selected-candidate');
             cell.style.background = ''; cell.style.boxShadow = ''; cell.style.border = ''; cell.style.transform = '';
         });
     }

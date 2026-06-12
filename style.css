@@ -273,6 +273,18 @@ body.dark-theme .gravity-directions { background: #374151; }
     justify-content: center;
 }
 
+/* 🌎 スマホ・PC共通：プレビューが選択されている方向ボタンのスタイル */
+.direction-btn.preview-active {
+    box-shadow: 0 0 15px #4ecdc4;
+    border: 3px solid #fff;
+    animation: pulseActive 1s infinite alternate;
+}
+
+@keyframes pulseActive {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+}
+
 .game-info { margin-bottom: 2rem; text-align: center; }
 
 .status {
@@ -308,11 +320,23 @@ body.dark-theme .status { color: #d1d5db; }
     font-weight: bold;
     transition: all 0.3s ease;
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
+    -webkit-tap-highlight-color: transparent; /* スマホタップ時の青いハイライトを消去 */
 }
 
 body.dark-theme .cell {
     background: linear-gradient(145deg, #374151, #1f2937);
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 📱 スマホガイド機能用：セルを1回タップ（選択）した時の仮選択スタイル */
+.cell.selected-candidate {
+    border: 3px solid #667eea !important;
+    background: #e8f4fd !important;
+    transform: scale(0.95);
+}
+body.dark-theme .cell.selected-candidate {
+    border-color: #60a5fa !important;
+    background: #1e3a8a !important;
 }
 
 .cell:hover {
@@ -343,19 +367,15 @@ body.dark-theme .cell.x {
     background: linear-gradient(145deg, #831843, #111827);
 }
 
-/* 🌎 ガイドモード機能用：重力の予測プレビュー表示 */
 .cell.preview-o {
-    content: "〇";
     color: rgba(102, 126, 234, 0.4) !important;
     font-size: 2.2rem;
 }
 .cell.preview-x {
-    content: "✕";
     color: rgba(118, 75, 162, 0.4) !important;
     font-size: 2.2rem;
 }
 
-/* 👻 ガイドモード機能用：自爆警告の赤点滅 */
 .cell.danger-warning {
     animation: dangerBlink 0.8s infinite alternate !important;
     border: 3px solid #ff4757 !important;
@@ -561,7 +581,6 @@ body.dark-theme .close-btn { color: #9ca3af; }
 
 body.dark-theme .help-section h3 { color: #e5e7eb; }
 
-/* 🏆 3.遊び方図解化用のスタイルクラス */
 .rule-item-visual {
     display: flex;
     flex-direction: column;
@@ -735,22 +754,35 @@ body.dark-theme .winner-modal .modal-content { background-color: rgba(31, 41, 55
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* 📱 スマホ対応メディアクエリ強化：横幅1024px以下で完璧に縦1カラム化 */
 @media (max-width: 1024px) {
     .main-container { flex-direction: column; }
-    .main-screen, .game-screen, .cpu-selection-screen { width: 100%; min-height: auto; }
+    .main-screen, .game-screen, .cpu-selection-screen { width: 100%; min-height: 100vh; }
     .main-screen { padding: 3rem 2rem; }
-    .game-screen { padding: 2rem; }
+    .game-screen { padding: 2rem; justify-content: flex-start; }
 }
 
 @media (max-width: 600px) {
-    .header { top: 2rem !important; left: 3rem !important; }
-    .header .help-btn { top: 0 !important; left: 0 !important; position: static !important; }
+    .header { top: 1rem !important; left: 1.5rem !important; }
     .main-screen { padding: 0; min-height: 100vh; justify-content: center; }
-    .main-content { padding: 2rem 1.5rem; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3rem; }
-    .title { font-size: 3rem; text-align: center; }
-    .game-mode-buttons { gap: 2rem; width: 100%; max-width: 300px; }
-    .play-btn { min-width: 100%; padding: 1.4rem 2rem; font-size: 1.3rem; border-radius: 30px; }
-    .game-board { max-width: 90vw; gap: 0.2rem; }
-    .cell { width: 50px; height: 50px; font-size: 1.8rem; border-radius: 8px; }
-    .back-to-main-btn { position: fixed; top: 1rem; right: 2rem; z-index: 10; border-radius: 50% !important; width: 50px; height: 50px; min-width: 50px; padding: 0; display: flex; align-items: center; justify-content: center; }
+    .main-content { padding: 2rem 1.5rem; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+    .title { font-size: 2.5rem; text-align: center; margin-bottom: 1.5rem; }
+    .title-new { transform: translateX(0); font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+    .game-mode-buttons { gap: 1.5rem; width: 100%; max-width: 280px; }
+    .play-btn { min-width: 100%; padding: 1.2rem 2rem; font-size: 1.2rem; border-radius: 30px; }
+    
+    /* 6×6の盤面がスマホの画面幅を超えないように自動フィットさせる */
+    .game-board { 
+        max-width: 95vw; 
+        gap: 4px; 
+        margin-bottom: 1.5rem;
+    }
+    .cell { 
+        width: calc((95vw - 20px) / 6); 
+        height: calc((95vw - 20px) / 6); 
+        font-size: 1.4rem; 
+        border-radius: 8px; 
+    }
+    .gravity-section { margin-bottom: 2rem; }
+    .game-header .back-btn { top: 1rem; right: 1.5rem; width: 40px; height: 40px; font-size: 1.2rem; }
 }
