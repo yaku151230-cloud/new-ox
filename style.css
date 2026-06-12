@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -11,9 +10,14 @@ body {
     min-height: 100vh;
     color: #333;
     overflow-x: hidden;
+    transition: background 0.5s ease;
 }
 
-/* メインコンテナ */
+body.dark-theme {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    color: #f3f4f6;
+}
+
 .main-container {
     width: 100%;
     min-height: 100vh;
@@ -21,7 +25,6 @@ body {
     justify-content: center;
 }
 
-/* 左側：メイン画面 */
 .main-screen {
     width: 50%;
     min-height: 100vh;
@@ -33,6 +36,11 @@ body {
     backdrop-filter: blur(10px);
     padding: 2rem;
     position: relative;
+    transition: background 0.5s ease;
+}
+
+body.dark-theme .main-screen {
+    background: rgba(31, 41, 55, 0.95);
 }
 
 .header {
@@ -57,9 +65,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 1rem;
-    left: 2rem;
     z-index: 10;
+}
+
+body.dark-theme .help-btn {
+    background: #4b5563;
 }
 
 .help-btn:hover {
@@ -83,24 +93,28 @@ body {
     line-height: 1.1;
     position: relative;
 }
-/* タイトル内の装飾 */
+
+body.dark-theme .title {
+    background: linear-gradient(45deg, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+}
+
 .title-new {
     display: inline-block;
     background: linear-gradient(45deg, #667eea, #764ba2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 2rem; /* 小さく */
-    transform: translateX(-80px); /* 左にずらす */
+    font-size: 2rem;
+    transform: translateX(-80px);
 }
 
-.title-main {
-    display: inline-block;
+body.dark-theme .title-new {
+    background: linear-gradient(45deg, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
 }
 
-/* タイトル全体を少し上に */
-.main-content {
-    margin-top: 20px; /* 全体を上へ少し移動 */
-}
+.title-main { display: inline-block; }
+.main-content { margin-top: 20px; }
 
 .game-mode-buttons {
     display: flex;
@@ -122,20 +136,14 @@ body {
     color: white;
 }
 
-.play-2p-btn {
-    background: linear-gradient(45deg, #ff6b9d, #c44569);
-}
-
-.play-cpu-btn {
-    background: linear-gradient(45deg, #4ecdc4, #44a08d);
-}
+.play-2p-btn { background: linear-gradient(45deg, #ff6b9d, #c44569); }
+.play-cpu-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
 
 .play-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
 }
 
-/* 右側：ゲーム画面 */
 .game-screen {
     width: 50%;
     min-height: 100vh;
@@ -145,30 +153,20 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative; /* 子要素の絶対配置の基準にする */
+    position: relative;
+    transition: background 0.5s ease;
 }
+
+body.dark-theme .game-screen { background: rgba(31, 41, 55, 0.95); }
 
 .game-header {
     width: 100%;
     display: flex;
-    justify-content: space-between; /* 左:戻る 右:ヘルプ */
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
 }
 
-/* ゲーム画面のヘルプボタンをメインと同位置に固定 */
-#help-btn-game {
-    position: absolute;
-    top: 1rem;
-    left: 2rem;
-    z-index: 10;
-    font-size: 1.5rem;
-    width: 50px;
-    height: 50px;
-    padding: 1.5rem;
-}
-
-/* メインに戻るボタンを右上へ */
 .game-header .back-btn {
     position: absolute;
     top: 1rem;
@@ -181,7 +179,7 @@ body {
 }
 
 .back-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24); /* 元の配色に戻す */
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
     color: white;
     border: none;
     padding: 0.5rem;
@@ -190,7 +188,6 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-
 }
 
 .back-btn:hover {
@@ -204,7 +201,8 @@ body {
     font-weight: 600;
 }
 
-/* 重力セクション（盤面の上） */
+body.dark-theme .game-title { color: #f3f4f6; }
+
 .gravity-section {
     position: relative;
     display: flex;
@@ -216,7 +214,7 @@ body {
 }
 
 .gravity-btn {
-    background: linear-gradient(45deg, #4ecdc4, #44a08d); /* 青緑系グラデーションに統一 */
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
     color: white;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -240,6 +238,11 @@ body {
     box-shadow: none;
 }
 
+body.dark-theme .gravity-btn:disabled {
+    background: #4b5563;
+    color: #9ca3af;
+}
+
 .gravity-directions {
     position: absolute;
     top: 100%;
@@ -252,10 +255,12 @@ body {
     padding: 8px;
 }
 
+body.dark-theme .gravity-directions { background: #374151; }
+
 .direction-btn {
     width: 50px;
     height: 50px;
-    background: linear-gradient(45deg, #667eea, #764ba2); /* 紫系グラデーションに統一 */
+    background: linear-gradient(45deg, #667eea, #764ba2);
     color: white;
     border: none;
     border-radius: 50%;
@@ -268,19 +273,7 @@ body {
     justify-content: center;
 }
 
-.direction-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.direction-btn:active {
-    transform: scale(0.95);
-}
-
-.game-info {
-    margin-bottom: 2rem;
-    text-align: center;
-}
+.game-info { margin-bottom: 2rem; text-align: center; }
 
 .status {
     font-size: 1.3rem;
@@ -289,21 +282,7 @@ body {
     color: #555;
 }
 
-.score {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.score span {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-    min-width: 80px;
-}
+body.dark-theme .status { color: #d1d5db; }
 
 .game-board {
     display: grid;
@@ -331,19 +310,27 @@ body {
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+body.dark-theme .cell {
+    background: linear-gradient(145deg, #374151, #1f2937);
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .cell:hover {
     transform: translateY(-2px);
     box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.15);
     background: linear-gradient(145deg, #e8f4fd, #d1e7dd);
 }
 
-.cell:active {
-    transform: translateY(0);
-}
+body.dark-theme .cell:hover { background: linear-gradient(145deg, #4b5563, #374151); }
 
 .cell.o {
     color: #667eea;
     background: linear-gradient(145deg, #e8f4fd, #d1e7dd);
+}
+
+body.dark-theme .cell.o {
+    color: #60a5fa;
+    background: linear-gradient(145deg, #1e3a8a, #111827);
 }
 
 .cell.x {
@@ -351,12 +338,32 @@ body {
     background: linear-gradient(145deg, #fde8e8, #f8d7da);
 }
 
-.cell.removing {
-    animation: removeAnimation 0.5s ease-out forwards;
+body.dark-theme .cell.x {
+    color: #f472b6;
+    background: linear-gradient(145deg, #831843, #111827);
 }
 
-.cell.moving {
-    animation: moveAnimation 0.3s ease-out;
+/* 🌎 ガイドモード機能用：重力の予測プレビュー表示 */
+.cell.preview-o {
+    content: "〇";
+    color: rgba(102, 126, 234, 0.4) !important;
+    font-size: 2.2rem;
+}
+.cell.preview-x {
+    content: "✕";
+    color: rgba(118, 75, 162, 0.4) !important;
+    font-size: 2.2rem;
+}
+
+/* 👻 ガイドモード機能用：自爆警告の赤点滅 */
+.cell.danger-warning {
+    animation: dangerBlink 0.8s infinite alternate !important;
+    border: 3px solid #ff4757 !important;
+}
+
+@keyframes dangerBlink {
+    0% { background: #ffebee; box-shadow: 0 0 5px rgba(255, 71, 87, 0.4); }
+    100% { background: #ffcccb; box-shadow: 0 0 15px rgba(255, 71, 87, 0.8); }
 }
 
 .cell.winning-cell {
@@ -365,51 +372,15 @@ body {
 }
 
 .cell.highlight-for-removal {
-    border: 3px solid #ffcc00; /* 黄色の枠線 */
-    box-shadow: 0 0 15px rgba(255, 204, 0, 0.8); /* 黄色の光 */
-    transform: scale(1.05); /* 少し拡大 */
+    border: 3px solid #ffcc00;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+    transform: scale(1.05);
 }
 
 @keyframes winningPulse {
-    0% {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255, 107, 157, 0.8); /* ピンク系に統一 */
-    }
-    50% {
-        transform: scale(1.1);
-        box-shadow: 0 0 30px rgba(196, 69, 105, 1); /* ピンク系に統一 */
-    }
-    100% {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255, 107, 157, 0.8); /* ピンク系に統一 */
-    }
-}
-
-@keyframes removeAnimation {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(0);
-        opacity: 0;
-    }
-}
-
-@keyframes moveAnimation {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 107, 157, 0.8); }
+    50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(196, 69, 105, 1); }
+    100% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 107, 157, 0.8); }
 }
 
 .controls {
@@ -419,7 +390,7 @@ body {
     margin-bottom: 1rem;
 }
 
-.reset-btn, .new-game-btn {
+.reset-btn {
     padding: 0.8rem 1.5rem;
     border: none;
     border-radius: 25px;
@@ -428,52 +399,15 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     min-width: 120px;
-}
-
-.reset-btn {
-    background: linear-gradient(45deg, #ff6b9d, #c44569); /* ピンク系グラデーションに統一 */
+    background: linear-gradient(45deg, #ff6b9d, #c44569);
     color: white;
 }
 
-.new-game-btn {
-    background: linear-gradient(45deg, #4ecdc4, #44a08d);
-    color: white;
-}
-
-.reset-btn:hover, .new-game-btn:hover {
+.reset-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.reset-btn:active, .new-game-btn:active {
-    transform: translateY(0);
-}
-
-/* メインに戻るボタン（CPU選択画面） */
-.back-to-main-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 25px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 120px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-.back-to-main-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-}
-
-.back-to-main-btn:active {
-    transform: translateY(0);
-}
-
-/* CPU対戦選択画面 */
 .cpu-selection-screen {
     width: 50%;
     min-height: 100vh;
@@ -484,13 +418,10 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    transition: background 0.5s ease;
 }
 
-.cpu-selection-content {
-    text-align: center;
-    max-width: 500px;
-    width: 100%;
-}
+body.dark-theme .cpu-selection-screen { background: rgba(31, 41, 55, 0.95); }
 
 .cpu-title {
     font-size: 2.5rem;
@@ -502,12 +433,16 @@ body {
     font-weight: bold;
 }
 
+body.dark-theme .cpu-title { background: linear-gradient(45deg, #a78bfa, #f472b6); }
+
 .cpu-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #666;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     font-weight: 500;
 }
+
+body.dark-theme .cpu-subtitle { color: #9ca3af; }
 
 .cpu-options {
     display: flex;
@@ -533,32 +468,23 @@ body {
     color: white;
 }
 
-.cpu-first-btn {
-    background: linear-gradient(45deg, #4ecdc4, #44a08d);
-}
+.cpu-first-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
+.cpu-second-btn { background: linear-gradient(45deg, #ff6b9d, #c44569); }
+.cpu-random-btn { background: linear-gradient(45deg, #667eea, #764ba2); }
 
-.cpu-second-btn {
-    background: linear-gradient(45deg, #ff6b9d, #c44569);
-}
-
-.cpu-random-btn {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-}
-
-.cpu-option-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-}
-
-.option-icon {
-    font-size: 1.5rem;
-}
-
-.option-text {
+.back-to-main-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
     font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
 }
 
-/* ヘルプモーダル */
 .help-modal {
     display: none;
     position: fixed;
@@ -582,8 +508,14 @@ body {
     max-width: 600px;
     width: 90%;
     position: relative;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
+    transition: background 0.3s ease;
+}
+
+body.dark-theme .help-modal .modal-content {
+    background: #1f2937;
+    color: #f3f4f6;
 }
 
 .modal-header {
@@ -591,6 +523,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .modal-header h2 {
@@ -599,23 +532,24 @@ body {
     font-size: 1.8rem;
 }
 
+body.dark-theme .modal-header h2 { color: #f3f4f6; }
+
 .close-btn {
     background: none;
     border: none;
     font-size: 2rem;
     cursor: pointer;
     color: #666;
-    transition: color 0.3s ease;
+    line-height: 1;
 }
 
-.close-btn:hover {
-    color: #333;
-}
+body.dark-theme .close-btn { color: #9ca3af; }
 
 .help-content {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    text-align: left;
 }
 
 .help-section h3 {
@@ -625,150 +559,145 @@ body {
     text-align: left;
 }
 
-.rules-content {
+body.dark-theme .help-section h3 { color: #e5e7eb; }
+
+/* 🏆 3.遊び方図解化用のスタイルクラス */
+.rule-item-visual {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-}
-
-.rule-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    gap: 12px;
     padding: 15px;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     border-radius: 12px;
-    text-align: left;
+    margin-bottom: 12px;
 }
 
-.rule-icon {
-    font-size: 2rem;
-    min-width: 40px;
+body.dark-theme .rule-item-visual {
+    background: linear-gradient(135deg, #374151, #4b5563);
 }
 
-.rule-text {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #333;
-}
-
-.mode-info {
+.rule-left {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    align-items: flex-start;
+    gap: 12px;
 }
 
-.mode-item {
+.visual-diagram {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background: linear-gradient(135deg, #e8f4fd, #d1e7dd);
+    gap: 5px;
+    background: rgba(0,0,0,0.03);
+    padding: 8px;
+    border-radius: 8px;
+    width: fit-content;
+}
+
+.diag-cell {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+}
+
+body.dark-theme .diag-cell { background: #1f2937; }
+.diag-cell.o { color: #667eea; background: #e8f4fd; }
+.diag-cell.x { color: #764ba2; background: #fde8e8; }
+.diag-cell.empty { background: #e9ecef; }
+body.dark-theme .diag-cell.empty { background: #111827; }
+
+.diag-cell.ghost {
+    background: #f1f2f6;
+    color: #ccc;
+    border: 1px dashed #ccc;
+}
+body.dark-theme .diag-cell.ghost { background: #374151; border-color: #555; }
+
+.diag-arrow { font-size: 1.2rem; color: #667eea; margin: 0 5px; font-weight: bold; }
+.diag-arrow-down { font-size: 0.8rem; color: #4ecdc4; font-weight: bold; text-align: center; width: 100%; margin: 3px 0; }
+
+.settings-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+.speed-toggle-btn {
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    background: white;
     border-radius: 12px;
-    text-align: left;
-}
-
-.mode-icon {
-    font-size: 2rem;
-    min-width: 40px;
-}
-
-.mode-text {
     font-size: 1rem;
-    line-height: 1.5;
-    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
 }
 
-/* 勝者モーダル */
+body.dark-theme .speed-toggle-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+}
+
+.speed-toggle-btn:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+}
+
+.speed-toggle-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.2);
+}
+
+body.dark-theme .speed-toggle-btn.active {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+}
+
 .winner-modal {
-    display: none; /* 初期状態では非表示。必要時はJSでdisplay: flexにする */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.2); /* 少し透明度を消す */
+    background: rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000; /* 最前面に表示を確実にするため、さらに高い値に設定 */
-    pointer-events: auto; /* モーダル全体でクリックイベントを有効にする */
-    color: white;
-    font-size: 1.8em;
+    z-index: 10000;
 }
 
 .winner-modal .modal-content {
-    background-color: rgba(255, 255, 255, 0.5); /* コンテンツ部分も少し透明度を消す */
+    background-color: rgba(255, 255, 255, 0.95);
     padding: 30px 50px;
     border-radius: 15px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* シャドウも元の強さに戻す */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     text-align: center;
-    transform: scale(0.9);
-    animation: modal-appear 0.3s ease-out forwards;
-    display: flex;
-    flex-direction: column; /* ボタンを縦に並べる */
-    gap: 15px; /* ボタン間のスペース */
-    align-items: center; /* ボタンを中央揃えにする */
-    z-index: 1001; /* モーダルコンテンツを最前面に */
-    pointer-events: auto; /* クリックイベントを有効にする */
 }
 
-.winner-modal h2 {
-    font-size: 0.8em; /* 文字サイズは維持 */
-    margin-bottom: 20px;
-    color: #333;
-}
+body.dark-theme .winner-modal .modal-content { background-color: rgba(31, 41, 55, 0.95); }
 
 .winner-modal button {
-    display: inline-block; /* 幅がコンテンツに合わせるように変更 */
-    min-width: 120px; /* ボタンが小さくなりすぎないように最小幅を設定 */
-    padding: 8px 12px; /* パディングをさらに小さくしてボタン自体を小さく */
-    font-size: 0.8em; /* ボタンの文字サイズをさらに小さく */
+    min-width: 120px;
+    padding: 8px 12px;
+    font-size: 0.8em;
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    pointer-events: auto; /* ボタン自体もクリックイベントを有効にする */
 }
 
-.winner-modal .play-again-btn {
-    background: linear-gradient(45deg, rgba(78, 205, 196, 0.9), rgba(68, 160, 141, 0.9)); /* 透明度を調整 */
-    color: white;
-}
+.winner-modal .play-again-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); color: white; }
+.winner-modal .back-btn { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; }
 
-.winner-modal .play-again-btn:hover {
-    background: linear-gradient(45deg, rgba(78, 205, 196, 0.98), rgba(68, 160, 141, 0.98)); /* ホバーでさらに濃く */
-    transform: translateY(-2px);
-}
-
-.winner-modal .back-btn {
-    background: linear-gradient(45deg, rgba(255, 107, 107, 0.9), rgba(238, 90, 36, 0.9)); /* 透明度を調整 */
-    color: white;
-}
-
-.winner-modal .back-btn:hover {
-    background: linear-gradient(45deg, rgba(255, 107, 107, 0.98), rgba(238, 90, 36, 0.98)); /* ホバーでさらに濃く */
-    transform: translateY(-2px);
-}
-
-/* ゲーム終了後のコントロール (削除) */
-/* #game-end-controls { display: none; } */
-
-/* メインに戻るボタン（ゲーム画面内）(削除) */
-/* .game-header .back-btn { display: none; } */
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ローディングインジケーター */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -779,16 +708,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9998; /* 他のモーダルやオーバーレイよりは低く */
+    z-index: 9998;
     color: white;
     font-size: 1.5em;
     flex-direction: column;
-    display: none; /* デフォルトで非表示 */
+    display: none;
 }
 
 .loading-spinner {
-    border: 8px solid #f3f3f3; /* Light grey */
-    border-top: 8px solid #3498db; /* Blue */
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -801,256 +730,27 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* レスポンシブデザイン */
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 1024px) {
-    .main-container {
-        flex-direction: column;
-    }
-    
-    .main-screen, .game-screen, .cpu-selection-screen {
-        width: 100%;
-        min-height: auto;
-    }
-    
-    .main-screen {
-        padding: 3rem 2rem;
-    }
-    
-    .game-screen, .cpu-selection-screen {
-        padding: 2rem;
-    }
+    .main-container { flex-direction: column; }
+    .main-screen, .game-screen, .cpu-selection-screen { width: 100%; min-height: auto; }
+    .main-screen { padding: 3rem 2rem; }
+    .game-screen { padding: 2rem; }
 }
 
 @media (max-width: 600px) {
-    /* スマホ用の縦長レイアウト最適化 */
-    .winner-modal {
-        display: none; /* スマホ初期表示では勝者モーダルを非表示にする */
-    }
-    .main-screen {
-        padding: 0;
-        background: rgba(255, 255, 255, 0.95); /* 元の配色に戻す */
-        backdrop-filter: blur(10px);
-        min-height: 100vh;
-        justify-content: center; /* 中央寄せは維持 */
-        gap: 0;
-    }
-    
-    .header {
-        position: absolute;
-        top: 1rem; /* さらに上に */
-        left: 2rem;
-        z-index: 10;
-    }
-    
-    .help-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
-        padding: 1.5rem;
-        background: #764ba2; /* 元の配色に戻す */
-        border: none; /* 元のスタイルに戻す */
-        top: 2rem;
-        left: 3rem;
-        z-index: 10;
-        
-    }
-    
-    .main-content {
-        max-width: 100%;
-        padding: 2rem 1.5rem; /* 上下の余白を調整 */
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3rem; /* タイトルとボタンの間隔を広げる */
-        justify-content: center; /* 中央寄せ */
-    }
-    
-    .title {
-        font-size: 3rem; /* サイズを大きく */
-        margin-bottom: 0;
-        background: linear-gradient(45deg, #667eea, #764ba2); /* 元のグラデーションに戻す */
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: bold;
-        text-align: center;
-    }
-    
-    .game-mode-buttons {
-        gap: 2rem; /* ボタン間の間隔を広げる */
-        width: 100%;
-        max-width: 300px; /* ボタンの幅を少し広げる */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .play-btn {
-        min-width: 100%;
-        padding: 1.4rem 2rem; /* ボタンの高さを少し高く */
-        font-size: 1.3rem; /* フォントサイズを少し大きく */
-        border-radius: 30px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .play-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-    }
-    
-    .play-btn:hover::before {
-        left: 100%;
-    }
-    
-    .play-2p-btn {
-        background: linear-gradient(45deg, #ff6b9d, #c44569); /* 元の配色に戻す */
-        border: none; /* 元のスタイルに戻す */
-    }
-    
-    .play-cpu-btn {
-        background: linear-gradient(45deg, #4ecdc4, #44a08d); /* 元の配色に戻す */
-        border: none; /* 元のスタイルに戻す */
-    }
-    
-    .game-screen, .cpu-selection-screen {
-        padding: 2rem;
-        gap: 2rem;
-    }
-    
-    .gravity-section {
-        margin-bottom: 2rem;
-        margin-top: 2rem;
-    }
-    
-    .game-board {
-        max-width: 90vw;
-        gap: 0.2rem;
-        margin-bottom: 0rem;
-        margin-top: 0rem;
-    }
-    
-    .cell {
-        width: 50px;
-        height: 50px;
-        font-size: 1.8rem;
-        border-radius: 8px;
-    }
-    
-    .direction-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    .controls {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.8rem;
-    }
-    
-    .reset-btn, .new-game-btn {
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    .help-modal .modal-content,
-    .winner-modal .modal-content {
-        margin: 1rem;
-        padding: 1.5rem;
-    }
-    
-    /* CPU選択画面も統一 */
-    .cpu-selection-screen {
-        background: rgba(255, 255, 255, 0.95); /* 元の配色に戻す */
-        backdrop-filter: blur(10px);
-        padding: 0;
-        justify-content: center; /* 中央寄せは維持 */
-    }
-    
-    .cpu-selection-content {
-        padding: 1rem 1rem; /* 上下の余白を調整 */
-        width: 100%;
-        max-width: 100%;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2rem; /* 間隔を広げる */
-        justify-content: center; /* 中央寄せ */
-    }
-    
-    .cpu-title {
-        font-size: 2.8rem; /* サイズを大きく */
-        background: linear-gradient(45deg, #667eea, #764ba2); /* 元のグラデーションに戻す */
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: bold;
-        text-align: center;
-    }
-    
-    .cpu-subtitle {
-        color: #666; /* 元の配色に戻す */
-        font-size: 1.2rem; /* サイズを少し大きく */
-        text-align: center;
-    }
-    
-    .cpu-options {
-        gap: 1.5rem; /* 間隔を広げる */
-        margin-bottom: 2rem;
-        width: 100%;
-        max-width: 300px; /* 幅を少し広げる */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .cpu-option-btn {
-        min-width: 100%;
-        padding: 1.4rem 2rem; /* 高さを少し高く */
-        border-radius: 30px;
-        border: none; /* 元のスタイルに戻す */
-        font-size: 1.2rem; /* フォントサイズを少し大きく */
-    }
-    
-    .cpu-first-btn {
-        background: linear-gradient(45deg, #4ecdc4, #44a08d); /* 元の配色に戻す */
-    }
-    
-    .cpu-second-btn {
-        background: linear-gradient(45deg, #ff6b9d, #c44569); /* 元の配色に戻す */
-    }
-    
-    .cpu-random-btn {
-        background: linear-gradient(45deg, #667eea, #764ba2); /* 元の配色に戻す */
-    }
-    
-    .back-to-main-btn {
-        background: linear-gradient(45deg, #ff6b6b, #ee5a24) !important; /* 元の配色に戻す */
-        border: none !important; /* 元のスタイルに戻す */
-        width: 50px !important;
-        height: 50px !important;
-        padding: 0 !important; /* パディングを0にして完全な円に */
-        min-width: 50px !important; /* 最小幅も50pxに */
-        font-size: 1.5rem !important;
-        top: 1rem;
-        right: 2rem;
-        z-index: 10;
-        font-weight: bold;
-        position: fixed;
-        border-radius: 50% !important;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .header { top: 2rem !important; left: 3rem !important; }
+    .header .help-btn { top: 0 !important; left: 0 !important; position: static !important; }
+    .main-screen { padding: 0; min-height: 100vh; justify-content: center; }
+    .main-content { padding: 2rem 1.5rem; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3rem; }
+    .title { font-size: 3rem; text-align: center; }
+    .game-mode-buttons { gap: 2rem; width: 100%; max-width: 300px; }
+    .play-btn { min-width: 100%; padding: 1.4rem 2rem; font-size: 1.3rem; border-radius: 30px; }
+    .game-board { max-width: 90vw; gap: 0.2rem; }
+    .cell { width: 50px; height: 50px; font-size: 1.8rem; border-radius: 8px; }
+    .back-to-main-btn { position: fixed; top: 1rem; right: 2rem; z-index: 10; border-radius: 50% !important; width: 50px; height: 50px; min-width: 50px; padding: 0; display: flex; align-items: center; justify-content: center; }
 }
