@@ -27,9 +27,9 @@
         <div class="game-screen" id="game-screen" style="display: none;">
             <div class="game-header">
                 <button id="back-to-main-from-game-btn" class="back-btn">⇦</button>
-                <div style="position: absolute; top: 1rem; left: 2rem; display: flex; gap: 1rem; z-index: 10;">
-                    <button id="help-btn-game" class="help-btn" style="position: static;">?</button>
-                    <button id="settings-btn-game" class="help-btn" style="position: static;">⚙</button>
+                <div style="display: flex; gap: 1rem; z-index: 10;">
+                    <button id="help-btn-game" class="help-btn">?</button>
+                    <button id="settings-btn-game" class="help-btn">⚙</button>
                 </div>
             </div>
 
@@ -92,17 +92,18 @@
         </div>
 
         <div class="cpu-selection-screen" id="cpu-selection-screen" style="display: none;">
+            <button id="back-to-main-from-cpu-btn" class="back-btn header-back-btn">⇦</button>
             <div class="cpu-selection-content">
                 <h2 class="cpu-title">CPU対戦モード</h2>
                 
-                <p class="cpu-subtitle" style="margin-bottom: 1rem;">1. 難易度を選択してください</p>
-                <div class="difficulty-options" style="display: flex; gap: 10px; margin-bottom: 2rem; justify-content: center; width: 100%; max-width: 400px;">
+                <p class="cpu-subtitle">1. 難易度を選択してください</p>
+                <div class="difficulty-options">
                     <button id="diff-easy-btn" class="speed-toggle-btn active">イージー</button>
                     <button id="diff-normal-btn" class="speed-toggle-btn">ノーマル</button>
                     <button id="diff-hard-btn" class="speed-toggle-btn">ハード</button>
                 </div>
 
-                <p class="cpu-subtitle" style="margin-bottom: 1rem;">2. 先手・後手を選択してください</p>
+                <p class="cpu-subtitle">2. 先手・後手を選択してください</p>
                 <div class="cpu-options">
                     <button id="cpu-first-btn" class="cpu-option-btn cpu-first-btn">
                         <span class="option-icon">👤</span>
@@ -117,8 +118,6 @@
                         <span class="option-text">ランダム</span>
                     </button>
                 </div>
-                
-                <button id="back-to-main-from-cpu-btn" class="back-to-main-btn">⇦</button>
             </div>
         </div>
         
@@ -144,7 +143,7 @@
                             <div class="rule-item-visual">
                                 <div class="rule-left">
                                     <span class="rule-icon">👻</span>
-                                    <span class="rule-text"><strong>ちょうど3つで消滅</strong><br>コマが「ちょうど3つ」並んでしまうと、その 3 つのコマは盤面から消滅します。</span>
+                                    <span class="rule-text"><strong>ちょうど3つで消滅</strong><br>コマが「ちょうど3つ」並んでしまうと、その3つのコマは盤面から消滅します。</span>
                                 </div>
                                 <div class="visual-diagram">
                                     <div class="diag-cell x">✕</div><div class="diag-cell x">✕</div><div class="diag-cell x">✕</div><div class="diag-cell empty"></div>
@@ -157,47 +156,58 @@
                                     <span class="rule-icon">🌎</span>
                                     <span class="rule-text"><strong>重力による連鎖消滅</strong><br>重力でコマが消えた場合、空いた隙間を埋めるように同じ方向へ再び重力がかかります（連鎖重力）。</span>
                                 </div>
-                                <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px; background: rgba(0,0,0,0.02); padding: 12px; border-radius: 10px; width: fit-content; margin-left: auto; margin-right: auto; flex-wrap: wrap; justify-content: center;">
-                                    <div>
-                                        <div style="font-size:0.75rem; text-align:center; color:#666; margin-bottom:3px;">1. 元の盤面</div>
-                                        <div style="display:grid; grid-template-columns:repeat(4, 26px); gap:2px;">
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell o" style="width:26px; height:26px; font-size:0.8rem;">〇</div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell o" style="width:26px; height:26px; font-size:0.8rem;">〇</div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div>
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell o" style="width:26px; height:26px; font-size:0.8rem;">〇</div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
+                                
+                                <div class="visual-flow-container">
+                                    <div class="flow-step-block">
+                                        <div class="step-title">1. 元の盤面</div>
+                                        <div class="diagram-grid-4">
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell x">✕</div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell x">✕</div><div class="diag-cell empty"></div><div class="diag-cell o">〇</div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell o">〇</div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell x">✕</div>
+                                            <div class="diag-cell empty"></div><div class="diag-cell o">〇</div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
                                         </div>
                                     </div>
-                                    <div class="diag-arrow" style="font-size:0.8rem;">↓下重力</div>
-                                    <div>
-                                        <div style="font-size:0.75rem; text-align:center; color:#666; margin-bottom:3px;">2. 落下と整列</div>
-                                        <div style="display:grid; grid-template-columns:repeat(4, 26px); gap:2px;">
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell o" style="width:26px; height:26px; font-size:0.8rem;">〇</div><div class="diag-cell o" style="width:26px; height:26px; font-size:0.8rem;">〇</div><div class="diag-cell o" style="width:26px; height:26px; font-size:0.8rem;">〇</div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div>
+                                    
+                                    <div class="flow-arrow-block">↓ 下重力</div>
+                                    
+                                    <div class="flow-step-block">
+                                        <div class="step-title">2. 落下と整列</div>
+                                        <div class="diagram-grid-4">
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell x">✕</div><div class="diag-cell empty"></div><div class="diag-cell x">✕</div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell o">〇</div><div class="diag-cell o">〇</div><div class="diag-cell o">〇</div><div class="diag-cell x">✕</div>
                                         </div>
+                                        <div class="step-desc-danger">(横に〇が3つ揃う)</div>
                                     </div>
-                                    <div class="diag-arrow" style="font-size:0.8rem;">➔</div>
-                                    <div>
-                                        <div style="font-size:0.75rem; text-align:center; color:#666; margin-bottom:3px;">3. 3つ消滅</div>
-                                        <div style="display:grid; grid-template-columns:repeat(4, 26px); gap:2px;">
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell ghost" style="width:26px; height:26px;"></div><div class="diag-cell ghost" style="width:26px; height:26px;"></div><div class="diag-cell ghost" style="width:26px; height:26px;"></div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div>
+                                    
+                                    <div class="flow-arrow-block">➔</div>
+                                    
+                                    <div class="flow-step-block">
+                                        <div class="step-title">3. 3つ消滅</div>
+                                        <div class="diagram-grid-4">
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell x">✕</div><div class="diag-cell empty"></div><div class="diag-cell x">✕</div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell ghost"></div><div class="diag-cell ghost"></div><div class="diag-cell ghost"></div><div class="diag-cell x">✕</div>
                                         </div>
+                                        <div class="step-desc-purple">(下段の〇3つが消滅)</div>
                                     </div>
-                                    <div class="diag-arrow" style="font-size:0.8rem;">↓再落下</div>
-                                    <div>
-                                        <div style="font-size:0.75rem; text-align:center; color:#666; margin-bottom:3px;">4. 連鎖完了</div>
-                                        <div style="display:grid; grid-template-columns:repeat(4, 26px); gap:2px;">
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell empty" style="width:26px; height:26px;"></div>
-                                            <div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell empty" style="width:26px; height:26px;"></div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div><div class="diag-cell x" style="width:26px; height:26px; font-size:0.8rem;">✕</div>
+                                    
+                                    <div class="flow-arrow-block">↓ 再落下</div>
+                                    
+                                    <div class="flow-step-block">
+                                        <div class="step-title">4. 連鎖完了</div>
+                                        <div class="diagram-grid-4">
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
+                                            <div class="diag-cell x">✕</div><div class="diag-cell empty"></div><div class="diag-cell x">✕</div><div class="diag-cell x">✕</div>
                                         </div>
+                                        <div class="step-desc-success">(両脇の✕が下へ詰まる)</div>
                                     </div>
                                 </div>
+                                
                             </div>
                         </div>
                     </div>

@@ -21,9 +21,9 @@ class TicTacToe {
         this.previewInterval = null;
         this.previewState = 'actual'; 
         
-        // 📱 スマホ用の「選択中（タップ1回目）」管理変数
-        this.selectedCellIndex = -1; // 現在仮選択されているセルのインデックス
-        this.selectedDirection = null; // 現在プレビュー選択されている重力の方向
+        // スマホ用の「選択中（タップ1回目）」管理変数
+        this.selectedCellIndex = -1; 
+        this.selectedDirection = null; 
         
         this.hideWinnerModal(); 
         this.initializeGame();
@@ -83,7 +83,7 @@ class TicTacToe {
             if (e.target.id === 'settings-modal') this.hideSettingsModal();
         });
         
-        // 👻 1.改良：セルのクリック & ホバーイベント（スマホの2ステップ配置に対応）
+        // セルのクリック & ホバーイベント
         const cells = document.querySelectorAll('.cell');
         cells.forEach(cell => {
             cell.addEventListener('click', (e) => this.handleCellClick(e));
@@ -91,20 +91,30 @@ class TicTacToe {
             cell.addEventListener('mouseleave', (e) => this.handleCellMouseLeave(e));
         });
         
-        // 重力ボタンのイベント
-        document.getElementById('gravity-btn').addEventListener('click', () => this.showGravityDirections());
+        // 🤖 1.改良：重力ボタン再タップで閉じる際、プレビューの点滅表示も同時に終了させる
+        document.getElementById('gravity-btn').addEventListener('click', () => {
+            if (this.gravityUsed[this.currentPlayer]) return;
+            const directions = document.getElementById('gravity-directions');
+            
+            if (directions.style.display === 'flex') {
+                directions.style.display = 'none';
+                this.stopGravityPreview(); // メニューを閉じると同時に、点滅プレビューも安全に完全終了
+                this.selectedDirection = null;
+                document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('preview-active'));
+            } else {
+                directions.style.display = 'flex';
+            }
+        });
         
-        // 🌎 2.改良：方向ボタンへのクリック（スマホの2ステッププレビューに対応）
+        // 方向ボタンのイベント
         document.querySelectorAll('.direction-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleDirectionClick(e));
             btn.addEventListener('mouseenter', (e) => {
-                // PC用：ホバー時にプレビュー開始
                 if (window.matchMedia('(hover: hover)').matches) {
                     this.startGravityPreview(e.target.dataset.direction);
                 }
             });
             btn.addEventListener('mouseleave', () => {
-                // PC用：ホバーが外れたら停止
                 if (window.matchMedia('(hover: hover)').matches) {
                     this.stopGravityPreview();
                 }
@@ -153,7 +163,6 @@ class TicTacToe {
         this.clearSelectionStates();
     }
 
-    // 選択状態の完全クリーンアップ
     clearSelectionStates() {
         this.selectedCellIndex = -1;
         this.selectedDirection = null;
@@ -211,7 +220,6 @@ class TicTacToe {
         document.body.classList.toggle('dark-theme', theme === 'dark');
     }
 
-    // PC用ホバー処理（スマホでは無効化される）
     handleCellMouseEnter(e) {
         if (!this.gameActive || !this.isGuideMode || !window.matchMedia('(hover: hover)').matches) return;
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
@@ -233,7 +241,6 @@ class TicTacToe {
         }
     }
 
-    // 🌎 重力点滅プレビューの開始（PC/スマホ共通コア処理）
     startGravityPreview(direction) {
         if (!this.gameActive || !this.isGuideMode) return;
         if (this.previewInterval) clearInterval(this.previewInterval);
@@ -261,7 +268,6 @@ class TicTacToe {
         this.renderActualFrame();
     }
 
-    // 🌎 スマホ用：重力方向ボタンをタップした時のトグル制御
     handleDirectionClick(e) {
         if (!this.gameActive) return;
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
@@ -269,11 +275,9 @@ class TicTacToe {
         const btn = e.target.closest('.direction-btn');
         const direction = btn.dataset.direction;
 
-        // ガイドモードがOFF、または既にその方向がプレビュー中の場合は、2回目のタップとみなして実行
         if (!this.isGuideMode || this.selectedDirection === direction) {
             this.useGravity(direction);
         } else {
-            // 1回目のタップ：他のボタンのハイライトを消し、この方向のプレビューを開始
             document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('preview-active'));
             btn.classList.add('preview-active');
             this.selectedDirection = direction;
@@ -309,7 +313,6 @@ class TicTacToe {
         });
     }
     
-    // 👻 スマホ用：セルをタップした時の2ステップ配置（自爆警告対応）
     async handleCellClick(e) {
         if (!this.gameActive) return;
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
@@ -318,7 +321,6 @@ class TicTacToe {
         const index = parseInt(cell.dataset.index);
         if (this.board[index] !== '') return;
         
-        // 重力プレビューが開いている状態で盤面が押されたら、プレビューをキャンセルする
         if (this.selectedDirection) {
             this.stopGravityPreview();
             this.selectedDirection = null;
@@ -326,24 +328,20 @@ class TicTacToe {
             return;
         }
 
-        // ガイドモードがONの場合の2ステップ判定
         if (this.isGuideMode) {
             if (this.selectedCellIndex !== index) {
-                // 1回目のタップ：今までの仮選択を解除し、新しいマスを仮選択する
                 this.clearSelectionStates();
                 this.selectedCellIndex = index;
                 cell.classList.add('selected-candidate');
 
-                // 自爆チェックを行って警告する
                 this.board[index] = this.currentPlayer;
                 const isDanger = this.wouldCpuLosePieces(index);
                 this.board[index] = '';
                 if (isDanger) cell.classList.add('danger-warning');
-                return; // ここで処理を止め、配置は保留にする
+                return; 
             }
         }
 
-        // 2回目のタップ（またはガイドOFF）の時、実際にコマを配置する
         this.clearSelectionStates();
         await this.makeMove(index);
         
@@ -561,12 +559,6 @@ class TicTacToe {
         if (this.checkDraw()) { this.endGame(true); return; }
     }
     
-    showGravityDirections() {
-        if (this.gravityUsed[this.currentPlayer]) return;
-        const directions = document.getElementById('gravity-directions');
-        directions.style.display = directions.style.display === 'flex' ? 'none' : 'flex';
-    }
-    
     async useGravity(direction) {
         if (this.gravityUsed[this.currentPlayer]) return;
         this.gravityUsed[this.currentPlayer] = true;
@@ -574,7 +566,7 @@ class TicTacToe {
         document.getElementById('gravity-directions').style.display = 'none';
         
         this.stopGravityPreview(); 
-        this.clearSelectionStates(); // 選択状態をリセット
+        this.clearSelectionStates(); 
         
         await this.sleep(300);
         await this.applyGravity(direction);
