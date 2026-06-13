@@ -188,7 +188,7 @@ body.dark-theme .winner-modal .modal-content { background-color: #1f2937; color:
     .game-mode-buttons { gap: 1.5rem; width: 100%; max-width: 280px; }
     .play-btn { min-width: 100%; padding: 1.2rem 2rem; font-size: 1.2rem; border-radius: 30px; }
     
-    /* 📱 【完全改修】スマホ版盤面：親要素の比率100%基準でロックし、見えない右の溝を完全にシャットアウト */
+    /* 📱 スマホ版盤面：親要素基準の100%幅にロック */
     .game-board { width: 100% !important; max-width: calc(100% - 32px) !important; margin-bottom: 2rem !important; margin-left: auto !important; margin-right: auto !important; padding: 0 !important; display: grid !important; justify-content: center !important; justify-items: center !important; }
     .cell { width: 100% !important; height: auto !important; }
     
@@ -198,8 +198,8 @@ body.dark-theme .winner-modal .modal-content { background-color: #1f2937; color:
     .game-board.size-7x7 { gap: 4px !important; grid-template-columns: repeat(7, 1fr) !important; }
     .game-board.size-7x7 .cell { font-size: 1.15rem; border-radius: 6px; }
     
-    /* 🏆 【位置微調整】重力ボタンの位置を上方向に引き上げ、盤面と絶対被らない安全な配置に */
-    .gravity-section { margin-top: -1.0rem !important; margin-bottom: 3.5rem !important; }
+    /* 🚀 【さらに改修】重力セクションの位置を限界まで上空へ。方向キー展開時も絶対にマスと被らない距離感に調整 */
+    .gravity-section { margin-top: -2.0rem !important; margin-bottom: 4.8rem !important; }
     
     /* 丸ボタン類を押しやすく大型化 */
     .back-btn, .help-btn { width: 46px !important; height: 46px !important; font-size: 1.25rem !important; }
