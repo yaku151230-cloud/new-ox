@@ -9,7 +9,7 @@
 <body>
     <div class="main-container">
         <div class="main-screen" id="main-screen">
-            <div class="header" style="display: flex; gap: 1rem;">
+            <div class="header-action-group">
                 <button id="help-btn" class="help-btn">?</button>
                 <button id="settings-btn" class="help-btn">⚙</button>
             </div>
@@ -26,11 +26,11 @@
 
         <div class="game-screen" id="game-screen" style="display: none;">
             <div class="game-header">
-                <button id="back-to-main-from-game-btn" class="back-btn">⇦</button>
-                <div style="display: flex; gap: 1rem; z-index: 10;">
+                <div class="header-action-group-game">
                     <button id="help-btn-game" class="help-btn">?</button>
                     <button id="settings-btn-game" class="help-btn">⚙</button>
                 </div>
+                <button id="back-to-main-from-game-btn" class="back-btn">⇦</button>
             </div>
 
             <div class="gravity-section">
@@ -144,18 +144,18 @@
                             <div class="rule-item-visual">
                                 <div class="rule-left">
                                     <span class="rule-icon">👻</span>
-                                    <span class="rule-text"><strong>ちょうど3つで消滅</strong><br>コマが「ちょうど3つ」並んでしまうと、その3つのコマは盤面から消滅します。</span>
+                                    <span class="rule-text"><strong>ちょうど3つで消滅</strong><br>コマが「ちょうど3つ」並んでしまうと、その3つのコマは消滅します。</span>
                                 </div>
-                                <div class="visual-diagram">
+                                <div class="visual-diagram responsive-diagram-box">
                                     <div class="diag-cell x">✕</div><div class="diag-cell x">✕</div><div class="diag-cell x">✕</div><div class="diag-cell empty"></div>
-                                    <div class="diag-arrow">➔</div>
+                                    <div class="diag-arrow flex-arrow">➔</div>
                                     <div class="diag-cell ghost"></div><div class="diag-cell ghost"></div><div class="diag-cell ghost"></div><div class="diag-cell empty"></div>
                                 </div>
                             </div>
                             <div class="rule-item-visual">
                                 <div class="rule-left">
                                     <span class="rule-icon">🌎</span>
-                                    <span class="rule-text"><strong>重力による連鎖消滅</strong><br>重力でコマが消えた場合、空いた隙間を埋めるように同じ方向へ再び重力がかかります（連鎖重力）。</span>
+                                    <span class="rule-text wrap-text"><strong>重力による連鎖消滅</strong><br>重力でコマが消えた場合、空いた隙間を埋めるように同じ方向へ再び重力がかかります（連鎖重力）。</span>
                                 </div>
                                 
                                 <div class="visual-flow-container">
@@ -169,7 +169,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="flow-arrow-block">↓ 下重力</div>
+                                    <div class="flow-arrow-block flex-arrow">↓ 下重力</div>
                                     
                                     <div class="flow-step-block">
                                         <div class="step-title">2. 落下と整列</div>
@@ -182,7 +182,7 @@
                                         <div class="step-desc-danger">(横に〇が3つ揃う)</div>
                                     </div>
                                     
-                                    <div class="flow-arrow-block">➔</div>
+                                    <div class="flow-arrow-block flex-arrow">➔</div>
                                     
                                     <div class="flow-step-block">
                                         <div class="step-title">3. 3つ消滅</div>
@@ -195,7 +195,7 @@
                                         <div class="step-desc-purple">(下段の〇3つが消滅)</div>
                                     </div>
                                     
-                                    <div class="flow-arrow-block">↓ 再落下</div>
+                                    <div class="flow-arrow-block flex-arrow">↓ 再落下</div>
                                     
                                     <div class="flow-step-block">
                                         <div class="step-title">4. 連鎖完了</div>

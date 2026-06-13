@@ -6,23 +6,19 @@ class TicTacToe {
         this.gravityUsed = { o: false, x: false };
         this.lastGravityDirection = null; 
         
-        // CPU対戦モード用の変数
         this.isCpuMode = false;
         this.cpuPlayer = 'x'; 
         this.humanPlayer = 'o'; 
         
-        // 設定・難易度用変数
         this.animationSpeed = 'normal';
         this.currentTheme = 'default';
         this.difficulty = 'easy';
         this.isGuideMode = true; 
         
-        // 重力プレビュー用のタイマー
         this.previewInterval = null;
         this.previewState = 'actual'; 
         this.activeHoldDirection = null; 
         
-        // 1手戻る（Undo）履歴
         this.historyStack = [];
         
         this.initializeGame();
@@ -37,6 +33,7 @@ class TicTacToe {
     }
     
     bindEvents() {
+        // PCクリックが暴発タッチガードで消えないように個別設定
         document.getElementById('play-2p-btn').addEventListener('click', () => this.showGameScreen());
         document.getElementById('play-cpu-btn').addEventListener('click', () => this.showCpuSelectionScreen());
         
@@ -54,20 +51,22 @@ class TicTacToe {
             backToMainFromGameBtn.addEventListener('click', () => this.showMainScreen());
         }
         
+        // ❓モーダル開閉
         document.getElementById('help-btn').addEventListener('click', () => this.showHelpModal());
-        const helpBtnGame = document.getElementById('help-btn-game');
-        if (helpBtnGame) helpBtnGame.addEventListener('click', () => this.showHelpModal());
+        document.getElementById('help-btn-game').addEventListener('click', () => this.showHelpModal());
         document.getElementById('close-help-btn').addEventListener('click', () => this.hideHelpModal());
         
+        // ⚙設定モーダル開閉
         document.getElementById('settings-btn').addEventListener('click', () => this.showSettingsModal());
-        const settingsBtnGame = document.getElementById('settings-btn-game');
-        if (settingsBtnGame) settingsBtnGame.addEventListener('click', () => this.showSettingsModal());
+        document.getElementById('settings-btn-game').addEventListener('click', () => this.showSettingsModal());
         document.getElementById('close-settings-btn').addEventListener('click', () => this.hideSettingsModal());
         
         document.getElementById('speed-normal-btn').addEventListener('click', () => this.setAnimationSpeed('normal'));
         document.getElementById('speed-fast-btn').addEventListener('click', () => this.setAnimationSpeed('fast'));
         document.getElementById('theme-default-btn').addEventListener('click', () => this.setTheme('default'));
         document.getElementById('theme-dark-btn').addEventListener('click', () => this.setTheme('dark'));
+        
+        // 👥 改善：プレイ中いつでもガイド変更をリアルタイム同期
         document.getElementById('guide-on-btn').addEventListener('click', () => this.setGuideMode(true));
         document.getElementById('guide-off-btn').addEventListener('click', () => this.setGuideMode(false));
         
@@ -84,7 +83,7 @@ class TicTacToe {
             cell.addEventListener('click', (e) => this.handleCellClick(e));
         });
         
-        // 重力メニューボタンのトグル開閉
+        // 重力メニューボタン
         document.getElementById('gravity-btn').addEventListener('click', () => {
             if (this.gravityUsed[this.currentPlayer]) return;
             const directions = document.getElementById('gravity-directions');
@@ -96,14 +95,14 @@ class TicTacToe {
             }
         });
         
-        // 💻📱 ハイブリッド：PCホバー ✕ スマホ長押しプレビューの完全共存
+        // 💻📱 ハイブリッド：PCホバー ✕ スマホ長押しプレビューの完全制御
         document.querySelectorAll('.direction-btn').forEach(btn => {
-            // モバイル長押し
+            // モバイル長押しタッチホールド
             btn.addEventListener('touchstart', (e) => this.handleDirectionTouchStart(e), { passive: false });
             btn.addEventListener('touchend', (e) => this.handleDirectionTouchEnd(e), { passive: false });
             btn.addEventListener('touchmove', (e) => this.handleDirectionTouchMove(e), { passive: false });
             
-            // パソコンマウス操作（乗せるだけでプレビュー、クリックで発動）
+            // パソコンマウス操作（ホバー互換）
             btn.addEventListener('mouseenter', (e) => {
                 if (window.matchMedia('(hover: hover)').matches) {
                     this.startGravityPreview(e.target.dataset.direction);
@@ -122,11 +121,9 @@ class TicTacToe {
         });
         
         document.getElementById('undo-btn').addEventListener('click', () => this.undoLastMove());
-        
-        const resetBtn = document.getElementById('reset-btn');
-        if (resetBtn) resetBtn.addEventListener('click', () => this.resetGame());
+        document.getElementById('reset-btn').addEventListener('click', () => this.resetGame());
 
-        // 🟥 修正：勝者モーダルのボタンクリックイベントを確実に拾う設計
+        // 🟥 モーダルボタンのバグ修正：確実に要素単体でタップイベントを補足
         document.getElementById('play-again-btn').addEventListener('click', () => this.playAgain());
         document.getElementById('back-to-main-btn').addEventListener('click', () => {
             this.hideWinnerModal();
@@ -193,20 +190,19 @@ class TicTacToe {
         
         if (mode === 'random') mode = Math.random() < 0.5 ? 'human' : 'cpu';
         
-        let isCpuFirst = false;
         if (mode === 'cpu') {
             this.currentPlayer = 'x'; this.cpuPlayer = 'x'; this.humanPlayer = 'o';
-            isCpuFirst = true; this.initialStartingPlayer = 'x';
+            this.initialStartingPlayer = 'x';
         } else {
             this.currentPlayer = 'o'; this.cpuPlayer = 'x'; this.humanPlayer = 'o';
-            isCpuFirst = false; this.initialStartingPlayer = 'o';
+            this.initialStartingPlayer = 'o';
         }
         
         this.resetGame();
         this.updateStatus();
         
-        // 🤖 修正：後手(CPUが先)を選択時に、確実にCPUの初手が発動する修正
-        if (isCpuFirst && this.gameActive) {
+        // 🤖 修正：後手(CPUが先)を選んだ際、確実に初手思考を開始させる
+        if (mode === 'cpu' && this.gameActive) {
             setTimeout(() => this.makeCpuMove(), this.animationSpeed === 'normal' ? 600 : 150);
         }
     }
@@ -237,11 +233,21 @@ class TicTacToe {
         document.body.classList.toggle('dark-theme', theme === 'dark');
     }
 
+    setGuideMode(isOn) {
+        this.isGuideMode = isOn;
+        document.getElementById('guide-on-btn').classList.toggle('active', isOn);
+        document.getElementById('guide-off-btn').classList.toggle('active', !isOn);
+        this.stopGravityPreview();
+        this.scanAndRenderDangerZones(); 
+    }
+
     scanAndRenderDangerZones() {
         const cells = document.querySelectorAll('.cell');
         cells.forEach(cell => cell.classList.remove('danger-border'));
 
         if (!this.gameActive || !this.isGuideMode) return;
+        
+        // 🤖 修正：現在CPUのターンであれば、人間用の罠予測スキャンを完全にスキップしてフリーズを防ぐ
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return; 
 
         for (let i = 0; i < 36; i++) {
@@ -258,11 +264,11 @@ class TicTacToe {
         }
     }
 
-    // モバイルタッチ長押しプレビューロジック
+    // スマホ：長押し開始
     handleDirectionTouchStart(e) {
         if (!this.gameActive || !this.isGuideMode) return;
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
-        e.preventDefault();
+        e.preventDefault(); 
 
         const btn = e.target.closest('.direction-btn');
         const direction = btn.dataset.direction;
@@ -272,6 +278,7 @@ class TicTacToe {
         this.startGravityPreview(direction);
     }
 
+    // スマホ：指を離した
     handleDirectionTouchEnd(e) {
         if (!this.activeHoldDirection) return;
         e.preventDefault();
@@ -290,6 +297,7 @@ class TicTacToe {
         }
     }
 
+    // スマホ：スライドキャンセル
     handleDirectionTouchMove(e) {
         if (!this.activeHoldDirection) return;
         e.preventDefault();
@@ -390,6 +398,10 @@ class TicTacToe {
     async makeCpuMove() {
         if (!this.gameActive || this.currentPlayer !== this.cpuPlayer) return;
         
+        // CPUの番になったら人間用のスキャンを確実に一度完全に止め、バグを防ぐ
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => cell.classList.remove('danger-border'));
+
         this.saveSnapshotToHistory();
         const move = this.getCpuMove();
         if (move === 'gravity') return;
@@ -932,7 +944,7 @@ class TicTacToe {
     playAgain() {
         this.resetGame();
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) {
-            setTimeout(() => this.makeCpuMove(), this.animationSpeed === 'normal' ? 500 : 100);
+            setTimeout(() => this.makeCpuMove(), this.animationSpeed === 'normal' * 500 || 100);
         }
     }
     
