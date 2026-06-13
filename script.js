@@ -14,7 +14,7 @@ class TicTacToe {
         this.humanPlayer = 'o'; 
         this.initialStartingPlayer = 'o';
         
-        // 🏆 CPU戦用の内部選択状態（確定ボタンを押すまでこれを保持）
+        // CPU戦用の内部選択状態（確定ボタンを押すまでこれを保持）
         this.selectedCpuOrder = 'human'; // 'human', 'cpu', 'random'
         
         this.targetWins = 1;      
@@ -46,17 +46,16 @@ class TicTacToe {
         document.getElementById('play-cpu-btn').addEventListener('click', () => this.showSetupScreen(true));
         
         document.getElementById('board-6x6-btn').addEventListener('click', () => this.setBoardSizeSetting(6));
-        document.getElementById('board-7x7-btn').classList.toggle('active', false);
         document.getElementById('board-7x7-btn').addEventListener('click', () => this.setBoardSizeSetting(7));
         
         document.getElementById('match-1-btn').addEventListener('click', () => this.setMatchTargetSetting(1));
         document.getElementById('match-2-btn').addEventListener('click', () => this.setMatchTargetSetting(2));
         document.getElementById('match-3-btn').addEventListener('click', () => this.setMatchTargetSetting(3));
         
-        // 🏆 共通の最終確定スタートボタンイベント
+        // 共通の最終確定スタートボタンイベント
         document.getElementById('game-start-final-btn').addEventListener('click', () => this.processFinalStart());
         
-        // 🏆 CPUの先手・後手・ランダムのトグル選択（即開始せず、クラスの付け替えのみ）
+        // CPUの先手・後手・ランダムのトグル選択
         document.getElementById('cpu-first-btn').addEventListener('click', () => this.setCpuOrderSetting('human'));
         document.getElementById('cpu-second-btn').addEventListener('click', () => this.setCpuOrderSetting('cpu'));
         document.getElementById('cpu-random-btn').addEventListener('click', () => this.setCpuOrderSetting('random'));
@@ -125,7 +124,6 @@ class TicTacToe {
         document.getElementById('match-3-btn').classList.toggle('active', wins === 3);
     }
 
-    // 🏆 CPU戦用の先手手番のトグル選択表示同期
     setCpuOrderSetting(order) {
         this.selectedCpuOrder = order;
         document.getElementById('cpu-first-btn').classList.toggle('active', order === 'human');
@@ -147,7 +145,7 @@ class TicTacToe {
             setupTitle.textContent = "CPU対戦モード設定";
             cpuOptionsArea.style.display = 'block';
             p2OptionsArea.style.display = 'none';
-            this.setCpuOrderSetting(this.selectedCpuOrder); // 現在の選択状態にクラスを付与
+            this.setCpuOrderSetting(this.selectedCpuOrder); 
         } else {
             setupTitle.textContent = "友達と対戦モード設定";
             cpuOptionsArea.style.display = 'none';
@@ -155,7 +153,6 @@ class TicTacToe {
         }
     }
 
-    // 🏆 一番下の確定ボタンが押された時の共通処理ハブ
     processFinalStart() {
         if (this.isCpuMode) {
             this.startSelectedGame(this.selectedCpuOrder);
@@ -184,26 +181,29 @@ class TicTacToe {
         this.isMatchOver = false;
 
         if (mode === 'p2') {
-            this.currentPlayer = 'o';
+            this.isCpuMode = false; 
             this.initialStartingPlayer = 'o';
             document.getElementById('match-scoreboard').style.display = 'flex';
             document.getElementById('match-target-text').textContent = `（${this.targetWins}本先取）`;
             this.updateScoreboardDisplay();
         } else {
+            this.isCpuMode = true; 
             document.getElementById('match-scoreboard').style.display = 'none';
             this.targetWins = 1; 
             if (mode === 'random') mode = Math.random() < 0.5 ? 'human' : 'cpu';
             if (mode === 'cpu') {
-                this.currentPlayer = 'x'; this.cpuPlayer = 'x'; this.humanPlayer = 'o';
+                this.cpuPlayer = 'x'; this.humanPlayer = 'o';
                 this.initialStartingPlayer = 'x';
             } else {
-                this.currentPlayer = 'o'; this.cpuPlayer = 'x'; this.humanPlayer = 'o';
+                this.cpuPlayer = 'x'; this.humanPlayer = 'o';
                 this.initialStartingPlayer = 'o';
             }
         }
         
         this.resetGame();
+        this.currentPlayer = this.initialStartingPlayer; // 強制上書きを防ぎ選択した順番を死守
         this.updateStatus();
+        this.updateGravityButton();
         
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) {
             setTimeout(() => this.makeCpuMove(), 500);
@@ -211,8 +211,12 @@ class TicTacToe {
     }
 
     updateScoreboardDisplay() {
-        document.getElementById('score-o-display').textContent = this.scores.o;
-        document.getElementById('score-x-display').textContent = this.scores.x;
+        const oDisp = document.getElementById('score-o-display');
+        const xDisp = document.getElementById('score-x-display');
+        if (oDisp && xDisp) {
+            oDisp.textContent = this.scores.o;
+            xDisp.textContent = this.scores.x;
+        }
     }
 
     resetMatchScoresAndGame() {
@@ -223,7 +227,12 @@ class TicTacToe {
     }
 
     saveSnapshotToHistory() {
-        const snapshot = { board: [...this.board], currentPlayer: this.currentPlayer, gravityUsed: { ...this.gravityUsed }, lastGravityDirection: this.lastGravityDirection };
+        const snapshot = { 
+            board: Array.from(this.board), 
+            currentPlayer: this.currentPlayer, 
+            gravityUsed: Object.assign({}, this.gravityUsed), 
+            lastGravityDirection: this.lastGravityDirection 
+        };
         this.historyStack.push(snapshot);
         this.updateUndoButtonState();
     }
@@ -236,7 +245,10 @@ class TicTacToe {
         for (let i = 0; i < undoCount; i++) {
             if (this.historyStack.length === 0) break;
             const previousState = this.historyStack.pop();
-            this.board = previousState.board; this.currentPlayer = previousState.currentPlayer; this.gravityUsed = previousState.gravityUsed; this.lastGravityDirection = previousState.lastGravityDirection;
+            this.board = Array.from(previousState.board); 
+            this.currentPlayer = previousState.currentPlayer; 
+            this.gravityUsed = Object.assign({}, previousState.gravityUsed); 
+            this.lastGravityDirection = previousState.lastGravityDirection;
         }
         this.renderActualFrame(); this.updateStatus(); this.updateGravityButton(); this.updateUndoButtonState(); this.scanAndRenderDangerZones(); 
         document.getElementById('gravity-directions').style.display = 'none';
@@ -271,7 +283,7 @@ class TicTacToe {
         for (let i = 0; i < this.maxCells; i++) {
             const targetCell = document.querySelector(`[data-index="${i}"]`); if (!targetCell) continue;
             if (this.board[i] === '') {
-                this.board[i] = this.currentPlayer; const isDanger = this.wouldCpuLosePieces(i); this.board[i] = '';
+                const isDanger = this.wouldPlayerLosePiecesOnBoard(this.board, i, this.currentPlayer);
                 if (isDanger) targetCell.classList.add('danger-border'); else targetCell.classList.remove('danger-border');
             } else { targetCell.classList.remove('danger-border'); }
         }
@@ -316,34 +328,91 @@ class TicTacToe {
     }
     
     getCpuMove() {
-        for (let i = 0; i < this.maxCells; i++) { if (this.board[i] === '') { this.board[i] = this.cpuPlayer; const isWin = this.checkWinnerForPlayer(this.cpuPlayer); const isErased = this.wouldCpuLosePieces(i); this.board[i] = ''; if (isWin) { if (this.difficulty === 'easy' || !isErased) return i; } } }
-        if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { for (const dir of ['up', 'down', 'left', 'right']) { if (this.checkWinnerForSimulatedBoard(this.simulateGravity(dir), this.cpuPlayer)) { this.useGravity(dir); return 'gravity'; } } }
-        let opponentReachIndex = -1;
-        for (let i = 0; i < this.maxCells; i++) { if (this.board[i] === '') { this.board[i] = this.humanPlayer; const oppWin = this.checkWinnerForPlayer(this.humanPlayer); this.board[i] = ''; if (oppWin) { opponentReachIndex = i; break; } } }
-        if (opponentReachIndex !== -1) {
-            this.board[opponentReachIndex] = this.cpuPlayer; const willSelfDestruct = this.wouldCpuLosePieces(opponentReachIndex); this.board[opponentReachIndex] = '';
-            if (!willSelfDestruct) return opponentReachIndex;
-            else { if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { const defensiveDir = this.findDefensiveGravityMove(); if (defensiveDir) { this.useGravity(defensiveDir); return 'gravity'; } } return opponentReachIndex; }
+        const size = this.boardSize;
+        // 1. 自分がそこに置くことで即座に「4つ並んで勝利」できるマスをスキャン
+        for (let i = 0; i < this.maxCells; i++) { 
+            if (this.board[i] === '') { 
+                const virtualBoard = Array.from(this.board);
+                virtualBoard[i] = this.cpuPlayer; 
+                const isWin = this.checkWinnerForSimulatedBoard(virtualBoard, this.cpuPlayer); 
+                const isErased = this.wouldPlayerLosePiecesOnBoard(virtualBoard, i, this.cpuPlayer); 
+                if (isWin) { if (this.difficulty === 'easy' || !isErased) return i; } 
+            } 
         }
+        // 2. 重力一発で勝利できるかチェック（イージー以外）
+        if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { 
+            for (const dir of ['up', 'down', 'left', 'right']) { 
+                if (this.checkWinnerForSimulatedBoard(this.simulateGravity(dir), this.cpuPlayer)) { this.useGravity(dir); return 'gravity'; } 
+            } 
+        }
+        // 3. 相手（プレイヤー）の4つ並びリーチを阻止する
+        let opponentReachIndex = -1;
+        for (let i = 0; i < this.maxCells; i++) { 
+            if (this.board[i] === '') { 
+                const virtualBoard = Array.from(this.board);
+                virtualBoard[i] = this.humanPlayer; 
+                if (this.checkWinnerForSimulatedBoard(virtualBoard, this.humanPlayer)) { opponentReachIndex = i; break; } 
+            } 
+        }
+        if (opponentReachIndex !== -1) {
+            const virtualBoard = Array.from(this.board);
+            virtualBoard[opponentReachIndex] = this.cpuPlayer;
+            const willSelfDestruct = this.wouldPlayerLosePiecesOnBoard(virtualBoard, opponentReachIndex, this.cpuPlayer);
+            if (!willSelfDestruct) return opponentReachIndex;
+            else { 
+                if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { 
+                    const defensiveDir = this.findDefensiveGravityMove(); 
+                    if (defensiveDir) { this.useGravity(defensiveDir); return 'gravity'; } 
+                } 
+                return opponentReachIndex; 
+            }
+        }
+
         const emptyCells = []; for (let i = 0; i < this.maxCells; i++) { if (this.board[i] === '') emptyCells.push(i); }
         let finalCandidateCells = [...emptyCells];
+        
         if (this.difficulty === 'hard') {
             const safeCells = [];
             for (const moveIndex of emptyCells) {
-                this.board[moveIndex] = this.cpuPlayer; if (this.wouldCpuLosePieces(moveIndex)) { this.board[moveIndex] = ''; continue; }
-                let isDangerous = false; if (!this.gravityUsed[this.humanPlayer]) { for (const dir of ['up', 'down', 'left', 'right']) { if (this.checkWinnerForSimulatedBoard(this.simulateGravity(dir), this.humanPlayer)) isDangerous = true; } }
-                for (let h = 0; h < this.maxCells; h++) { if (this.board[h] === '') { this.board[h] = this.humanPlayer; if (this.checkWinnerForPlayer(this.humanPlayer)) isDangerous = true; this.board[h] = ''; } }
-                this.board[moveIndex] = ''; if (!isDangerous) safeCells.push(moveIndex);
+                const vBoard = Array.from(this.board);
+                vBoard[moveIndex] = this.cpuPlayer;
+                if (this.wouldPlayerLosePiecesOnBoard(vBoard, moveIndex, this.cpuPlayer)) continue;
+                
+                let isDangerous = false; 
+                if (!this.gravityUsed[this.humanPlayer]) { 
+                    for (const dir of ['up', 'down', 'left', 'right']) { 
+                        if (this.checkWinnerForSimulatedBoard(this.simulateGravityOnBoard(vBoard, dir), this.humanPlayer)) isDangerous = true; 
+                    } 
+                }
+                for (let h = 0; h < this.maxCells; h++) { 
+                    if (vBoard[h] === '') { 
+                        vBoard[h] = this.humanPlayer; 
+                        if (this.checkWinnerForSimulatedBoard(vBoard, this.humanPlayer)) isDangerous = true; 
+                        vBoard[h] = ''; 
+                    } 
+                }
+                if (!isDangerous) safeCells.push(moveIndex);
             }
             if (safeCells.length > 0) finalCandidateCells = safeCells;
         }
+
         if (this.difficulty !== 'easy') {
-            for (const i of finalCandidateCells) { this.board[i] = this.cpuPlayer; let success = false; for (const d of ['up', 'down', 'left', 'right']) { if (this.checkWinnerForSimulatedBoard(this.simulateGravity(d), this.cpuPlayer)) success = true; } this.board[i] = ''; if (success) return i; }
-            for (const i of finalCandidateCells) { this.board[i] = this.cpuPlayer; let patterns = 0; for (let n = 0; n < this.maxCells; n++) { if (this.board[n] === '') { this.board[n] = this.cpuPlayer; if (this.checkWinnerForPlayer(this.cpuPlayer) && !this.wouldCpuLosePieces(n)) patterns++; this.board[n] = ''; } } this.board[i] = ''; if (patterns >= 2) return i; }
+            for (const i of finalCandidateCells) { 
+                const vBoard = Array.from(this.board); vBoard[i] = this.cpuPlayer; 
+                let success = false; 
+                for (const d of ['up', 'down', 'left', 'right']) { if (this.checkWinnerForSimulatedBoard(this.simulateGravityOnBoard(vBoard, d), this.cpuPlayer)) success = true; } 
+                if (success) return i; 
+            }
+            for (const i of finalCandidateCells) { 
+                const vBoard = Array.from(this.board); vBoard[i] = this.cpuPlayer; 
+                let patterns = 0; 
+                for (let n = 0; n < this.maxCells; n++) { if (vBoard[n] === '') { vBoard[n] = this.cpuPlayer; if (this.checkWinnerForSimulatedBoard(vBoard, this.cpuPlayer) && !this.wouldPlayerLosePiecesOnBoard(vBoard, n, this.cpuPlayer)) patterns++; vBoard[n] = ''; } } 
+                if (patterns >= 2) return i; 
+            }
         }
-        const centralMyStrategic = []; const centralOpponentStrategic = []; const myStrategic = []; const opponentStrategic = []; const centralCells = []; const size = this.boardSize;
+
+        const centralMyStrategic = []; const centralOpponentStrategic = []; const myStrategic = []; const opponentStrategic = []; const centralCells = [];
         for (const i of finalCandidateCells) {
-            if (this.difficulty === 'hard' && this.wouldCpuLosePieces(i)) continue;
             const isNearMe = this.isNearPlayer(i, this.cpuPlayer); const isNearOpponent = this.isNearPlayer(i, this.humanPlayer); const row = Math.floor(i / size); const col = i % size; const isCentral = (row >= 1 && row <= (size-2) && col >= 1 && col <= (size-2));
             if (isCentral) { centralCells.push(i); if (isNearMe) centralMyStrategic.push(i); if (isNearOpponent) centralOpponentStrategic.push(i); }
             if (isNearMe) myStrategic.push(i); else if (isNearOpponent) opponentStrategic.push(i);
@@ -351,22 +420,26 @@ class TicTacToe {
         if (centralMyStrategic.length > 0) return centralMyStrategic[Math.floor(Math.random() * centralMyStrategic.length)]; if (centralOpponentStrategic.length > 0) return centralOpponentStrategic[Math.floor(Math.random() * centralOpponentStrategic.length)]; if (myStrategic.length > 0) return myStrategic[Math.floor(Math.random() * myStrategic.length)]; if (opponentStrategic.length > 0) return opponentStrategic[Math.floor(Math.random() * opponentStrategic.length)]; if (centralCells.length > 0) return centralCells[Math.floor(Math.random() * centralCells.length)]; if (finalCandidateCells.length > 0) return finalCandidateCells[Math.floor(Math.random() * finalCandidateCells.length)]; return emptyCells[Math.floor(Math.random() * emptyCells.length)];
     }
     
-    wouldCpuLosePieces(moveIndex) {
-        const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; const row = Math.floor(moveIndex / size); const col = moveIndex % size; const targetPlayer = this.board[moveIndex]; if (targetPlayer === '') return false;
+    // 🏆 完全隔離版：指定された仮想盤面データの上だけで3つ並び自爆を検証するメソッド
+    wouldPlayerLosePiecesOnBoard(targetBoard, moveIndex, player) {
+        const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; const row = Math.floor(moveIndex / size); const col = moveIndex % size;
         for (let [dx, dy] of directions) {
-            let count = 1; let x = col + dx; let y = row + dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (this.board[y * size + x] === targetPlayer) { count++; x += dx; y += dy; } else break; }
-            x = col - dx; y = row - dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (this.board[y * size + x] === targetPlayer) { count++; x -= dx; y -= dy; } else break; }
+            let count = 1; let x = col + dx; let y = row + dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (targetBoard[y * size + x] === player) { count++; x += dx; y += dy; } else break; }
+            x = col - dx; y = row - dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (targetBoard[y * size + x] === player) { count++; x -= dx; y -= dy; } else break; }
             if (count === 3) return true;
         }
         return false;
     }
     
-    simulateGravity(direction) {
-        const size = this.boardSize; const currentBoard = [...this.board]; const newBoard = Array(this.maxCells).fill('');
-        if (direction === 'up') { for (let col = 0; col < size; col++) { let w = col; for (let row = 0; row < size; row++) { const r = row * size + col; if (currentBoard[r] !== '') { newBoard[w] = currentBoard[r]; w += size; } } } } 
-        else if (direction === 'down') { for (let col = 0; col < size; col++) { let w = (size * (size - 1)) + col; for (let row = (size - 1); row >= 0; row--) { const r = row * size + col; if (currentBoard[r] !== '') { newBoard[w] = currentBoard[r]; w -= size; } } } } 
-        else if (direction === 'left') { for (let row = 0; row < size; row++) { let w = row * size; for (let col = 0; col < size; col++) { const r = row * size + col; if (currentBoard[r] !== '') { newBoard[w] = currentBoard[r]; w++; } } } } 
-        else if (direction === 'right') { for (let row = 0; row < size; row++) { let w = row * size + (size - 1); for (let col = (size - 1); col >= 0; col--) { const r = row * size + col; if (currentBoard[r] !== '') { newBoard[w] = currentBoard[r]; w--; } } } }
+    simulateGravity(direction) { return this.simulateGravityOnBoard(this.board, direction); }
+
+    // 🏆 完全隔離版：グローバルな盤面を一切書き換えない重力シミュレーター
+    simulateGravityOnBoard(targetBoard, direction) {
+        const size = this.boardSize; const newBoard = Array(this.maxCells).fill('');
+        if (direction === 'up') { for (let col = 0; col < size; col++) { let w = col; for (let row = 0; row < size; row++) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w += size; } } } } 
+        else if (direction === 'down') { for (let col = 0; col < size; col++) { let w = (size * (size - 1)) + col; for (let row = (size - 1); row >= 0; row--) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w -= size; } } } } 
+        else if (direction === 'left') { for (let row = 0; row < size; row++) { let w = row * size; for (let col = 0; col < size; col++) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w++; } } } } 
+        else if (direction === 'right') { for (let row = 0; row < size; row++) { let w = row * size + (size - 1); for (let col = (size - 1); col >= 0; col--) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w--; } } } }
         return newBoard;
     }
     
@@ -404,21 +477,7 @@ class TicTacToe {
     
     updateCell(index) { const cell = document.querySelector(`[data-index="${index}"]`); if (!cell) return; cell.textContent = this.currentPlayer === 'o' ? '〇' : '✕'; cell.classList.add(this.currentPlayer); cell.style.transform = 'scale(0.8)'; setTimeout(() => { cell.style.transform = 'scale(1)'; }, 100); }
     
-    checkWinner() {
-        const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize;
-        for (let row = 0; row < size; row++) {
-            for (let col = 0; col < size; col++) {
-                const index = row * size + col; if (this.board[index] === '') continue; const player = this.board[index];
-                for (let [dx, dy] of directions) {
-                    let count = 1; let x = col + dx; let y = row + dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (this.board[y * size + x] === player) { count++; x += dx; y += dy; } else break; }
-                    x = col - dx; y = row - dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (this.board[y * size + x] === player) { count++; x -= dx; y -= dy; } else break; }
-                    if (count >= 4) return true;
-                }
-            }
-        }
-        return false;
-    }
-    
+    checkWinner() { return this.checkWinnerForSimulatedBoard(this.board, this.currentPlayer); }
     async removeCells(indices) { indices.forEach(index => { this.board[index] = ''; }); return new Promise(resolve => { indices.forEach(index => { const cell = document.querySelector(`[data-index="${index}"]`); if (cell) cell.classList.add('removing'); }); setTimeout(() => { indices.forEach(index => { const cell = document.querySelector(`[data-index="${index}"]`); if (cell) { cell.textContent = ''; cell.className = 'cell'; cell.style.background = ''; cell.style.boxShadow = ''; } }); this.updateBoardDisplay(); resolve(); }, 600); }); }
     checkDraw() { return this.board.every(cell => cell !== ''); }
     switchPlayer() { this.currentPlayer = this.currentPlayer === 'o' ? 'x' : 'o'; }
@@ -452,9 +511,24 @@ class TicTacToe {
     }
     
     resetGame() { this.board = Array(this.maxCells).fill(''); this.gameActive = true; this.gravityUsed = { o: false, x: false }; this.lastGravityDirection = null; this.currentPlayer = this.initialStartingPlayer || 'o'; this.historyStack = []; this.clearBoard(); this.updateStatus(); this.updateGravityButton(); this.hideWinnerModal(); document.getElementById('gravity-directions').style.display = 'none'; this.scanAndRenderDangerZones(); this.updateUndoButtonState(); }
-    playAgain() { if (this.isMatchOver) { this.resetMatchScoresAndGame(); } else { this.resetGame(); } if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) { setTimeout(() => this.makeCpuMove(), 500); } }
+    playAgain() { if (this.isMatchOver) { this.resetMatchScoresAndGame(); } else { this.resetGame(); this.currentPlayer = this.initialStartingPlayer; this.updateStatus(); this.updateGravityButton(); } if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) { setTimeout(() => this.makeCpuMove(), 500); } }
     clearBoard() { document.querySelectorAll('.cell').forEach(cell => { cell.textContent = ''; cell.className = 'cell'; cell.style.background = ''; cell.style.boxShadow = ''; cell.style.border = ''; cell.style.transform = ''; }); }
-    checkWinnerForSimulatedBoard(board, player) { const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; for (let row = 0; row < size; row++) { for (let col = 0; col < size; col++) { const index = row * size + col; if (index >= board.length || board[index] !== player) continue; for (let [dx, dy] of directions) { let count = 1; let x = col + dx; let y = row + dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (board[y * size + x] === player) { count++; x += dx; y += dy; } else break; } x = col - dx; y = row - dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (board[y * size + x] === player) { count++; x -= dx; y -= dy; } else break; } if (count >= 4) return true; } } } return false; }
+    
+    checkWinnerForSimulatedBoard(board, player) { 
+        const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; 
+        for (let row = 0; row < size; row++) { 
+            for (let col = 0; col < size; col++) { 
+                const index = row * size + col; if (index >= board.length || board[index] !== player) continue; 
+                for (let [dx, dy] of directions) { 
+                    let count = 1; let x = col + dx; let y = row + dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (board[y * size + x] === player) { count++; x += dx; y += dy; } else break; } 
+                    x = col - dx; y = row - dy; while (x >= 0 && x < size && y >= 0 && y < size) { if (board[y * size + x] === player) { count++; x -= dx; y -= dy; } else break; } 
+                    if (count >= 4) return true; 
+                } 
+            } 
+        } 
+        return false; 
+    }
+    
     findDefensiveGravityMove() { const directions = ['up', 'down', 'left', 'right']; for (const dir of directions) { const simulatedBoard = this.simulateGravity(dir); let isSafe = true; for (let i = 0; i < this.maxCells; i++) { if (simulatedBoard[i] === '') { simulatedBoard[i] = this.humanPlayer; if (this.checkWinnerForSimulatedBoard(simulatedBoard, this.humanPlayer)) isSafe = false; simulatedBoard[i] = ''; } } if (isSafe) return dir; } return directions[Math.floor(Math.random() * directions.length)]; }
     
     async checkAndRemoveThrees() {
