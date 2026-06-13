@@ -100,7 +100,9 @@ body.dark-theme .cpu-selection-screen { background: rgba(31, 41, 55, 0.95); }
 .header-back-btn { position: absolute; top: 1.2rem !important; left: 1.5rem !important; }
 .cpu-selection-content { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .cpu-title { font-size: 2.3rem; margin-bottom: 2rem; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; }
-body.dark-theme .cpu-title { background: linear-gradient(45deg, #a78bfa, #f472b6); }
+body.dark-theme .cpu-title {
+    -webkit-background-clip: text;
+}
 .cpu-subtitle { font-size: 1.1rem; color: #666; margin-bottom: 0.8rem; font-weight: 500; margin-top: 0.5rem; }
 body.dark-theme .cpu-subtitle { color: #9ca3af; }
 .difficulty-options { display: flex; gap: 10px; margin-bottom: 2rem; justify-content: center; width: 100%; max-width: 400px; }
