@@ -456,7 +456,17 @@ class TicTacToe {
         this.board = newBoard; if (moves.length > 0) await this.animateGravityMoves(moves); else this.updateBoardDisplay(); await this.afterGravityCheck();
     }
     
-    async animateGravityMoves(moves) { if (moves.length === 0) return; const maxDistance = Math.max(...moves.map(move => Math.abs(move.to - move.from))); for (let step = 1; step <= maxDistance; step++) { await this.animateAllMovesOneStep(moves, step); if (step < maxDistance) await this.sleep(120); } this.updateBoardDisplay(); }
+    // ⭕ 修正後（無限ループを完全に防止）
+async animateGravityMoves(moves) { 
+    if (moves.length === 0) return; 
+    // 安全のため、ループの最大回数を現在の盤面サイズ（6か7）にカチッと制限します
+    const maxDistance = Math.min(this.boardSize, Math.max(...moves.map(move => Math.abs(move.to - move.from)))); 
+    for (let step = 1; step <= maxDistance; step++) { 
+        await this.animateAllMovesOneStep(moves, step); 
+        if (step < maxDistance) await this.sleep(120); 
+    } 
+    this.updateBoardDisplay(); 
+}
     async animateAllMovesOneStep(moves, step) { return new Promise((resolve) => { const cellsToUpdate = new Set(); moves.forEach(move => { const distance = Math.abs(move.to - move.from); if (step <= distance) { const c = this.calculateCurrentPosition(move, step); const p = this.calculateCurrentPosition(move, step - 1); if (c !== p) cellsToUpdate.add({ from: p, to: c, value: move.value }); } }); cellsToUpdate.forEach(update => { const fromCell = document.querySelector(`[data-index="${update.from}"]`); const toCell = document.querySelector(`[data-index="${update.to}"]`); if (fromCell && toCell) { fromCell.textContent = ''; fromCell.classList.remove('o', 'x'); toCell.textContent = update.value === 'o' ? '〇' : '✕'; toCell.classList.add(update.value, 'moving'); } }); setTimeout(() => { cellsToUpdate.forEach(update => { const toCell = document.querySelector(`[data-index="${update.to}"]`); if (toCell) toCell.classList.remove('moving'); }); resolve(); }, 100); }); }
     calculateCurrentPosition(move, step) { const direction = this.lastGravityDirection; const size = this.boardSize; const fromRow = Math.floor(move.from / size); const fromCol = move.from % size; const toRow = Math.floor(move.to / size); const toCol = move.to % size; let currentRow, currentCol; if (direction === 'up') { currentRow = fromRow - Math.min(step, fromRow - toRow); currentCol = fromCol; } else if (direction === 'down') { currentRow = fromRow + Math.min(step, toRow - fromRow); currentCol = fromCol; } else if (direction === 'left') { currentRow = fromRow; currentCol = fromCol - Math.min(step, fromCol - toCol); } else if (direction === 'right') { currentRow = fromRow; currentCol = fromCol + Math.min(step, toCol - fromCol); } return currentRow * size + currentCol; }
     sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
