@@ -38,7 +38,7 @@ body.dark-theme .game-screen { background: rgba(31, 41, 55, 0.95); }
 .back-btn { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; border: none; border-radius: 50%; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
 .back-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
 
-/* 🌎 重力セクション（上部にボタンの重なりが一切ないためマージンを上へ固定） */
+/* 🌎 重力セクション */
 .gravity-section { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: -2.5rem; margin-bottom: 2rem; z-index: 200; }
 .gravity-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); color: white; border: none; padding: 0.8rem 2.2rem; border-radius: 25px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
 .gravity-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -71,7 +71,7 @@ body.dark-theme .cell.x { color: #f472b6; background: #371e36; }
 
 @keyframes winningPulse { 0% { transform: translate3d(0,0,0) scale(1.02); box-shadow: 0 0 12px rgba(255, 107, 157, 0.6); } 50% { transform: translate3d(0,0,0) scale(1.08); box-shadow: 0 0 22px rgba(196, 69, 105, 0.9); } 100% { transform: translate3d(0,0,0) scale(1.02); box-shadow: 0 0 12px rgba(255, 107, 157, 0.6); } }
 
-/* 🏆 新設計：下部へ移動したスコアボードのスタイル */
+/* 下部へ移動したスコアボードのスタイル */
 .match-scoreboard { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 0.5rem; margin-bottom: 2.2rem; background: rgba(0, 0, 0, 0.04); padding: 8px 24px; border-radius: 20px; font-weight: bold; position: relative; width: fit-content; margin-left: auto; margin-right: auto; }
 body.dark-theme .match-scoreboard { background: rgba(255, 255, 255, 0.05); }
 .score-box { font-size: 1.4rem; padding: 2px 10px; border-radius: 8px; }
@@ -81,7 +81,7 @@ body.dark-theme .score-box.o-score { color: #60a5fa; }
 body.dark-theme .score-box.x-score { color: #f472b6; }
 .score-divider { color: #888; font-size: 1.2rem; }
 
-/* 「何点先取」を潰さず、さらに下へマージンを設けて独立表示 */
+/* 「何点先取」を独立表示 */
 .match-target-text { position: absolute; bottom: -1.5rem; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; font-weight: 600; white-space: nowrap; }
 body.dark-theme .match-target-text { color: #ccc; }
 
@@ -188,8 +188,8 @@ body.dark-theme .winner-modal .modal-content { background-color: #1f2937; color:
     .game-mode-buttons { gap: 1.5rem; width: 100%; max-width: 280px; }
     .play-btn { min-width: 100%; padding: 1.2rem 2rem; font-size: 1.2rem; border-radius: 30px; }
     
-    /* 📱 スマホ版盤面：親要素の軸をセンターに完全ロックし、1pxの狂いもなく完全ど真ん中へ配置 */
-    .game-board { width: calc(100vw - 32px) !important; max-width: 100vw !important; margin-bottom: 2rem !important; margin-left: auto !important; margin-right: auto !important; padding: 0 !important; display: grid !important; justify-content: center !important; justify-items: center !important; }
+    /* 📱 【完全改修】スマホ版盤面：親要素の比率100%基準でロックし、見えない右の溝を完全にシャットアウト */
+    .game-board { width: 100% !important; max-width: calc(100% - 32px) !important; margin-bottom: 2rem !important; margin-left: auto !important; margin-right: auto !important; padding: 0 !important; display: grid !important; justify-content: center !important; justify-items: center !important; }
     .cell { width: 100% !important; height: auto !important; }
     
     .game-board.size-6x6 { gap: 6px !important; grid-template-columns: repeat(6, 1fr) !important; }
@@ -198,8 +198,8 @@ body.dark-theme .winner-modal .modal-content { background-color: #1f2937; color:
     .game-board.size-7x7 { gap: 4px !important; grid-template-columns: repeat(7, 1fr) !important; }
     .game-board.size-7x7 .cell { font-size: 1.15rem; border-radius: 6px; }
     
-    /* 🏆 スコアボードが下へ行ったことで、重力セクションは上の広々としたエリアにスッキリ配置 */
-    .gravity-section { margin-top: -0.5rem; margin-bottom: 2.5rem; }
+    /* 🏆 【位置微調整】重力ボタンの位置を上方向に引き上げ、盤面と絶対被らない安全な配置に */
+    .gravity-section { margin-top: -1.0rem !important; margin-bottom: 3.5rem !important; }
     
     /* 丸ボタン類を押しやすく大型化 */
     .back-btn, .help-btn { width: 46px !important; height: 46px !important; font-size: 1.25rem !important; }
