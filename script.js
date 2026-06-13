@@ -233,6 +233,13 @@ class TicTacToe {
         document.body.classList.toggle('dark-theme', theme === 'dark');
     }
 
+    setDifficulty(difficulty) {
+        this.difficulty = difficulty;
+        document.getElementById('diff-easy-btn').classList.toggle('active', difficulty === 'easy');
+        document.getElementById('diff-normal-btn').classList.toggle('active', difficulty === 'normal');
+        document.getElementById('diff-hard-btn').classList.toggle('active', difficulty === 'hard');
+    }
+
     setGuideMode(isOn) {
         this.isGuideMode = isOn;
         document.getElementById('guide-on-btn').classList.toggle('active', isOn);
