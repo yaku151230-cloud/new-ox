@@ -132,13 +132,11 @@ class TicTacToe {
         this.updateUndoButtonState();
     }
 
-    /* ↩「1手戻る」挙動変更の反映（対戦モードごとの判定ロジック） */
     undoLastMove() {
         if (this.historyStack.length === 0 || !this.gameActive) return;
         
         this.stopGravityPreview();
         
-        // CPUモードなら2手戻る（プレイヤーの前の手へ）、友達対戦なら1手前へ戻る
         let undoCount = (this.isCpuMode) ? 2 : 1; 
         if (this.isCpuMode && this.historyStack.length < 2) undoCount = 1;
 
@@ -726,7 +724,6 @@ class TicTacToe {
     
     sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
     
-    /* ⚡ パフォーマンス調整（不要なクラス初期化のループ処理を排除してカクツキを削減） */
     async updateBoardDisplay() {
         const cells = document.querySelectorAll('.cell');
         const animationPromises = [];
@@ -734,7 +731,6 @@ class TicTacToe {
         cells.forEach((cell, index) => {
             const value = this.board[index];
             if (value !== '') {
-                // 必要最低限のクラス付与と、テキストの直接書き換えのみに最適化
                 cell.textContent = value === 'o' ? '〇' : '✕';
                 cell.className = `cell ${value} moving`;
                 if (this.animationSpeed === 'normal') {
