@@ -488,7 +488,7 @@ class TicTacToe {
         this.gameActive = false; const modalBtn = document.getElementById('play-again-btn');
         if (isDraw) { modalBtn.textContent = "この試合を再戦"; if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal('引き分けです！'); } else { setTimeout(() => { this.showWinnerModal('引き分けです！'); }, 500); } return; }
         const roundWinner = this.currentPlayer; this.highlightWinningLine(); this.scores[roundWinner]++; this.updateScoreboardDisplay();
-        if (this.scores[roundWinner] >= this.targetWins) { this.isMatchOver = true; modalBtn.textContent = "もう一度最初から"; const msg = roundWinner === 'o' ? '〇の完全勝利！おめでとう！' : '✕の完全勝利！おめでとう！'; if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal(msg); } else { setTimeout(() => { this.showWinnerModal(msg); }, 500); } } 
+        if (this.scores[roundWinner] >= this.targetWins) { this.isMatchOver = true; modalBtn.textContent = "もう一度最初から"; const msg = roundWinner === 'o' ? '〇の勝利！' : '✕の勝利！'; if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal(msg); } else { setTimeout(() => { this.showWinnerModal(msg); }, 500); } } 
         else { this.isMatchOver = false; modalBtn.textContent = "次の試合（ラウンド）へ"; const msg = customMessage || (roundWinner === 'o' ? '〇が1勝を獲得！' : '✕が1勝を獲得！'); if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal(msg); } else { setTimeout(() => { this.showWinnerModal(msg); }, 500); } }
     }
     
