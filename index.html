@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>New! 〇✕ゲーム</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -87,7 +87,8 @@
             </div>
             
             <div class="controls">
-                <button id="reset-btn" class="reset-btn">リセット</button>
+                <button id="undo-btn" class="control-action-btn undo-btn" disabled>1手戻る</button>
+                <button id="reset-btn" class="control-action-btn reset-btn">リセット</button>
             </div>
         </div>
 
@@ -207,7 +208,6 @@
                                         <div class="step-desc-success">(両脇の✕が下へ詰まる)</div>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -235,7 +235,7 @@
                             <button id="guide-on-btn" class="speed-toggle-btn active">ON（おすすめ）</button>
                             <button id="guide-off-btn" class="speed-toggle-btn">OFF</button>
                         </div>
-                        <p style="font-size: 0.8rem; color: #666; margin-top: 5px; text-align: left; line-height: 1.3;">※ONにすると、自爆マスの赤点滅警告や、重力の点滅予測プレビューが表示されます。</p>
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 5px; text-align: left; line-height: 1.3;">※ONにすると、自爆マスの赤枠警告や、重力ボタン長押しでの予測プレビューが表示されます。</p>
                     </div>
                     <div class="help-section">
                         <h3>ゲームテンポ</h3>
@@ -255,11 +255,13 @@
             </div>
         </div>
         
-        <div class="winner-modal" id="winner-modal">
+        <div class="winner-modal" id="winner-modal" style="display: none;">
             <div class="modal-content">
                 <h2 id="winner-text">〇が勝ちました！</h2>
-                <button id="play-again-btn" class="play-again-btn">もう一度プレイ</button>
-                <button id="back-to-main-btn" class="back-btn">メインに戻る</button>
+                <div class="winner-modal-buttons">
+                    <button id="play-again-btn" class="play-again-btn">もう一度プレイ</button>
+                    <button id="back-to-main-btn" class="back-btn">メインに戻る</button>
+                </div>
             </div>
         </div>
 
