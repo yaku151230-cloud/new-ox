@@ -142,12 +142,12 @@ class TicTacToe {
         const setupTitle = document.getElementById('setup-screen-title');
 
         if (isCpu) {
-            setupTitle.textContent = "CPU対戦モード設定";
+            setupTitle.textContent = "CPUと対戦";
             cpuOptionsArea.style.display = 'block';
             p2OptionsArea.style.display = 'none';
             this.setCpuOrderSetting(this.selectedCpuOrder); 
         } else {
-            setupTitle.textContent = "友達と対戦モード設定";
+            setupTitle.textContent = "友達と対戦";
             cpuOptionsArea.style.display = 'none';
             p2OptionsArea.style.display = 'block';
         }
