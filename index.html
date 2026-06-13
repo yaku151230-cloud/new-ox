@@ -39,6 +39,15 @@
                     <button id="board-7x7-btn" class="speed-toggle-btn">拡大 (7×7)</button>
                 </div>
 
+                <div id="p2-only-setup-options" style="display: none;">
+                    <p class="cpu-subtitle">2. 勝利条件（何本先取するか）</p>
+                    <div class="difficulty-options">
+                        <button id="match-1-btn" class="speed-toggle-btn active">1本勝負</button>
+                        <button id="match-2-btn" class="speed-toggle-btn">2本先取</button>
+                        <button id="match-3-btn" class="speed-toggle-btn">3本先取</button>
+                    </div>
+                </div>
+
                 <div id="cpu-only-setup-options">
                     <p class="cpu-subtitle">2. CPUの難易度を選択してください</p>
                     <div class="difficulty-options">
@@ -46,21 +55,18 @@
                         <button id="diff-normal-btn" class="speed-toggle-btn">ノーマル</button>
                         <button id="diff-hard-btn" class="speed-toggle-btn">ハード</button>
                     </div>
+
+                    <p class="cpu-subtitle">3. 先手・後手を選択してください</p>
+                    <div class="difficulty-options">
+                        <button id="cpu-first-btn" class="speed-toggle-btn active">先手 (あなた)</button>
+                        <button id="cpu-second-btn" class="speed-toggle-btn">後手 (CPU)</button>
+                        <button id="cpu-random-btn" class="speed-toggle-btn">ランダム</button>
+                    </div>
                 </div>
 
-                <p class="cpu-subtitle" id="order-selection-subtitle">3. 先手・後手を選択してください</p>
-                <div class="cpu-options" id="order-selection-options">
-                    <button id="cpu-first-btn" class="cpu-option-btn cpu-first-btn">
-                        <span class="option-icon">👤</span>
-                        <span class="option-text" id="order-first-text">先手（あなたが先）</span>
-                    </button>
-                    <button id="cpu-second-btn" class="cpu-option-btn cpu-second-btn">
-                        <span class="option-icon">🤖</span>
-                        <span class="option-text" id="order-second-text">後手（CPUが先）</span>
-                    </button>
-                    <button id="cpu-random-btn" class="cpu-option-btn cpu-random-btn">
-                        <span class="option-icon">🎲</span>
-                        <span class="option-text">ランダム</span>
+                <div class="cpu-options" style="margin-top: 2rem;">
+                    <button id="game-start-final-btn" class="cpu-option-btn cpu-first-btn" style="justify-content: center;">
+                        <span class="option-text">対戦スタート！ ⚔</span>
                     </button>
                 </div>
             </div>
@@ -73,6 +79,13 @@
                     <button id="settings-btn-game" class="help-btn">⚙</button>
                 </div>
                 <button id="back-to-main-from-game-btn" class="back-btn">⇦</button>
+            </div>
+
+            <div class="match-scoreboard" id="match-scoreboard" style="display: none;">
+                <span class="score-box o-score">〇 <span id="score-o-display">0</span></span>
+                <span class="score-divider">ー</span>
+                <span class="score-box x-score"><span id="score-x-display">0</span> ✕</span>
+                <div class="match-target-text" id="match-target-text">（2本先取）</div>
             </div>
 
             <div class="gravity-section">
@@ -123,26 +136,19 @@
                                 </div>
                                 <div class="visual-diagram responsive-diagram-box">
                                     <div class="diag-row-group">
-                                        <div class="diag-cell x">✕</div>
-                                        <div class="diag-cell x">✕</div>
-                                        <div class="diag-cell x">✕</div>
+                                        <div class="diag-cell x">✕</div><div class="diag-cell x">✕</div><div class="diag-cell x">✕</div>
                                     </div>
-                                    
                                     <div class="diag-arrow-down">↓</div>
-                                    
                                     <div class="diag-row-group">
-                                        <div class="diag-cell ghost"></div>
-                                        <div class="diag-cell ghost"></div>
-                                        <div class="diag-cell ghost"></div>
+                                        <div class="diag-cell ghost"></div><div class="diag-cell ghost"></div><div class="diag-cell ghost"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="rule-item-visual">
                                 <div class="rule-left">
                                     <span class="rule-icon">🌎</span>
-                                    <span class="rule-text wrap-text"><strong>重力による連鎖消滅</strong><br>重力でコマが消えた場合、空いた隙間を埋めるように同じ方向へ再び重力がかかります（連鎖重力）。</span>
+                                    <span class="rule-text wrap-text"><strong>重力による連鎖消滅</strong><br>重力でコマが消えた場合、空いた隙間を埋めるように同じ方向へ再び重力がかかります。</span>
                                 </div>
-                                
                                 <div class="visual-flow-container">
                                     <div class="flow-step-block">
                                         <div class="step-title">1. 元の盤面</div>
@@ -153,7 +159,6 @@
                                             <div class="diag-cell empty"></div><div class="diag-cell o">〇</div><div class="diag-cell empty"></div><div class="diag-cell empty"></div>
                                         </div>
                                     </div>
-                                    
                                     <div class="flow-step-block">
                                         <div class="step-title">2. 落下と整列</div>
                                         <div class="diagram-grid-4">
@@ -164,7 +169,6 @@
                                         </div>
                                         <div class="step-desc-danger">(横に〇が3つ揃う)</div>
                                     </div>
-                                    
                                     <div class="flow-step-block">
                                         <div class="step-title">3. 3つ消滅</div>
                                         <div class="diagram-grid-4">
@@ -175,7 +179,6 @@
                                         </div>
                                         <div class="step-desc-purple">(下段の〇3つが消滅)</div>
                                     </div>
-                                    
                                     <div class="flow-step-block">
                                         <div class="step-title">4. 連鎖完了</div>
                                         <div class="diagram-grid-4">
@@ -231,7 +234,7 @@
             <div class="modal-content">
                 <h2 id="winner-text">〇が勝ちました！</h2>
                 <div class="winner-modal-buttons">
-                    <button id="play-again-btn" class="play-again-btn">もう一度プレイ</button>
+                    <button id="play-again-btn" class="play-again-btn">次の試合へ</button>
                     <button id="back-to-main-btn" class="back-btn">メインに戻る</button>
                 </div>
             </div>
