@@ -1,93 +1,21 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
-    overflow-x: hidden;
-    transition: background 0.5s ease;
-}
-
-body.dark-theme {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    color: #f3f4f6;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; overflow-x: hidden; transition: background 0.5s ease; }
+body.dark-theme { background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: #f3f4f6; }
 
 /* 💻📱 共通：左上ヘッダーアクションエリア */
-.header-action-group, .header-action-group-game {
-    position: absolute;
-    top: 1.2rem;
-    left: 1.5rem;
-    display: flex;
-    gap: 0.8rem;
-    z-index: 100;
-}
+.header-action-group, .header-action-group-game { position: absolute; top: 1.2rem; left: 1.5rem; display: flex; gap: 0.8rem; z-index: 100; }
+.main-container { width: 100%; min-height: 100vh; display: flex; justify-content: center; overflow: hidden; }
 
-.main-container {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.main-screen {
-    width: 50%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 2rem;
-    position: relative;
-    transition: background 0.5s ease;
-}
-
+.main-screen { width: 50%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 2rem; position: relative; transition: background 0.5s ease; }
 body.dark-theme .main-screen { background: rgba(31, 41, 55, 0.95); }
 
-.help-btn {
-    background: #764ba2;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.3rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+/* 🛠 改善：ヘルプ・設定ボタンを大きく（44px → 48pxで押しやすく） */
+.help-btn { background: #764ba2; color: white; border: none; border-radius: 50%; font-size: 1.4rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
 body.dark-theme .help-btn { background: #4b5563; }
 .help-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); }
 
 .main-content { text-align: center; max-width: 400px; }
-
-.title {
-    font-size: 3rem;
-    margin-bottom: 3rem;
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: bold;
-    line-height: 1.1;
-    position: relative;
-}
-
+.title { font-size: 3rem; margin-bottom: 3rem; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; line-height: 1.1; position: relative; }
 body.dark-theme .title { background: linear-gradient(45deg, #a78bfa, #f472b6); -webkit-background-clip: text; }
 .title-new { display: inline-block; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; transform: translateX(-80px); }
 body.dark-theme .title-new { background: linear-gradient(45deg, #a78bfa, #f472b6); -webkit-background-clip: text; }
@@ -95,208 +23,92 @@ body.dark-theme .title-new { background: linear-gradient(45deg, #a78bfa, #f472b6
 .main-content { margin-top: 20px; }
 
 .game-mode-buttons { display: flex; flex-direction: column; gap: 1.5rem; align-items: center; }
-
-.play-btn {
-    padding: 1.2rem 3rem;
-    border-radius: 50px;
-    font-size: 1.3rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    min-width: 200px;
-    border: none;
-    color: white;
-}
-
+.play-btn { padding: 1.2rem 3rem; border-radius: 50px; font-size: 1.3rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); min-width: 200px; border: none; color: white; }
 .play-2p-btn { background: linear-gradient(45deg, #ff6b9d, #c44569); }
 .play-cpu-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
 .play-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2); }
 
-.game-screen {
-    width: 50%;
-    min-height: 100vh;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 5.5rem 2rem 2rem 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    transition: background 0.5s ease;
-}
-
+.game-screen { width: 50%; min-height: 100vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 5.5rem 2rem 2rem 2rem; display: flex; flex-direction: column; align-items: center; position: relative; transition: background 0.5s ease; }
 body.dark-theme .game-screen { background: rgba(31, 41, 55, 0.95); }
 
 .game-header { width: 100%; position: absolute; top: 0; left: 0; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-.game-header .back-btn { position: absolute; top: 1.2rem; right: 1.5rem; font-size: 1.5rem; width: 44px; height: 44px; padding: 0; }
+.game-header .back-btn { position: absolute; top: 1.2rem; right: 1.5rem; font-size: 1.5rem; width: 48px; height: 48px; padding: 0; }
 
-.back-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+/* 🛠 改善：戻るボタンも大きく調整 */
+.back-btn { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; border: none; border-radius: 50%; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
 .back-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
 
-/* 🏆 追加：マッチプレイ用のクールなスコアボードデザイン */
-.match-scoreboard {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-top: -3.5rem;
-    margin-bottom: 2rem;
-    background: rgba(0, 0, 0, 0.04);
-    padding: 6px 20px;
-    border-radius: 20px;
-    font-weight: bold;
-    position: relative;
-}
+/* 🏆 マッチプレイ用スコアボード */
+.match-scoreboard { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: -3.5rem; margin-bottom: 2rem; background: rgba(0, 0, 0, 0.04); padding: 6px 20px; border-radius: 20px; font-weight: bold; position: relative; }
 body.dark-theme .match-scoreboard { background: rgba(255, 255, 255, 0.05); }
-
 .score-box { font-size: 1.3rem; padding: 2px 10px; border-radius: 8px; }
 .score-box.o-score { color: #667eea; }
 body.dark-theme .score-box.o-score { color: #60a5fa; }
 .score-box.x-score { color: #764ba2; }
 body.dark-theme .score-box.x-score { color: #f472b6; }
 .score-divider { color: #888; font-size: 1.1rem; }
-.match-target-text { position: absolute; bottom: -1.2rem; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #777; font-weight: normal; white-space: nowrap; }
-body.dark-theme .match-target-text { color: #aaa; }
 
-/* 🌎 重力セクション */
-.gravity-section {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 0rem;
-    margin-bottom: 5.5rem;
-    z-index: 200;
-}
+/* 🛠 改善：「何点先取」をさらに下にずらして余白を確保（bottom: -1.2rem → -1.6rem、かつ余白を広めに） */
+.match-target-text { position: absolute; bottom: -1.6rem; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: #666; font-weight: 500; white-space: nowrap; padding-top: 5px; }
+body.dark-theme .match-target-text { color: #bbb; }
 
-.gravity-btn {
-    background: linear-gradient(45deg, #4ecdc4, #44a08d);
-    color: white;
-    border: none;
-    padding: 0.8rem 2.2rem;
-    border-radius: 25px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
+/* 🌎 重力セクション（スコアボード下に綺麗に収まるマージンに修正） */
+.gravity-section { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 0.8rem; margin-bottom: 5.5rem; z-index: 200; }
+.gravity-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); color: white; border: none; padding: 0.8rem 2.2rem; border-radius: 25px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
 .gravity-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
 body.dark-theme .gravity-btn:disabled { background: #4b5563; color: #9ca3af; }
 
-.gravity-directions {
-    position: absolute;
-    top: 115%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 210;
-    background: white;
-    border-radius: 30px;
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
-    padding: 6px;
-    display: flex;
-    gap: 10px;
-}
+.gravity-directions { position: absolute; top: 115%; left: 50%; transform: translateX(-50%); z-index: 210; background: white; border-radius: 30px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2); padding: 6px; display: flex; gap: 10px; }
 body.dark-theme .gravity-directions { background: #374151; }
-
-.direction-btn {
-    width: 46px;
-    height: 46px;
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.4rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+.direction-btn { width: 46px; height: 46px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 50%; font-size: 1.4rem; font-weight: bold; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; display: flex; align-items: center; justify-content: center; }
 .direction-btn.preview-active { box-shadow: 0 0 20px #4ecdc4 !important; border: 3px solid #fff !important; transform: scale(1.1); }
 
 .game-info { margin-bottom: 1.5rem; text-align: center; }
 .status { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; color: #555; }
 body.dark-theme .status { color: #d1d5db; }
 
-/* 🛠 盤面コンテナ */
-.game-board { display: grid; margin-bottom: 1.5rem; width: 100%; max-width: 440px; margin-left: auto; margin-right: auto; }
+/* 🛠 PC版盤面コンテナ（中央配置の絶対保証） */
+.game-board { display: grid; margin-bottom: 1.5rem; width: 100%; max-width: 440px; margin-left: auto !important; margin-right: auto !important; justify-content: center; }
 .game-board.size-6x6 { grid-template-columns: repeat(6, 1fr); gap: 8px; }
 .game-board.size-7x7 { grid-template-columns: repeat(7, 1fr); gap: 6px; }
 
-.cell {
-    width: 100%; aspect-ratio: 1 / 1; background: #e6e6e6; border: 2px solid transparent; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; transition: background 0.15s, border-color 0.15s, transform 0.15s; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.05), 2px 2px 8px rgba(0, 0, 0, 0.08); -webkit-tap-highlight-color: transparent; will-change: transform, background-color, border-color; transform: translate3d(0, 0, 0);
-}
-
+.cell { width: 100%; aspect-ratio: 1 / 1; background: #e6e6e6; border: 2px solid transparent; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; transition: background 0.15s, border-color 0.15s, transform 0.15s; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.05), 2px 2px 8px rgba(0, 0, 0, 0.08); -webkit-tap-highlight-color: transparent; will-change: transform, background-color, border-color; transform: translate3d(0, 0, 0); }
 .game-board.size-7x7 .cell { font-size: 1.8rem; border-radius: 8px; }
 body.dark-theme .cell { background: #262f3c; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.05), 2px 2px 8px rgba(0, 0, 0, 0.2); }
 .cell.moving { transform: translate3d(0, 0, 0) scale(1); backface-visibility: hidden; perspective: 1000px; }
 .cell.danger-border { border-color: rgba(255, 71, 87, 0.6) !important; background: #fff0f0 !important; }
 body.dark-theme .cell.danger-border { border-color: rgba(255, 71, 87, 0.7) !important; background: #2d1b22 !important; }
-
 .cell.o { color: #667eea; background: #e8f4fd; }
 body.dark-theme .cell.o { color: #60a5fa; background: #1e293b; }
 .cell.x { color: #764ba2; background: #fdf2ff; }
 body.dark-theme .cell.x { color: #f472b6; background: #371e36; }
-
 .cell.preview-o { color: rgba(102, 126, 234, 0.35) !important; }
 .cell.preview-x { color: rgba(118, 75, 162, 0.35) !important; }
 .cell.winning-cell { animation: winningPulse 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 5; }
 .cell.highlight-for-removal { border: 3px solid #ffcc00 !important; box-shadow: 0 0 12px rgba(255, 204, 0, 0.7) !important; transform: translate3d(0,0,0) scale(1.05); }
 
-@keyframes winningPulse {
-    0% { transform: translate3d(0,0,0) scale(1.02); box-shadow: 0 0 12px rgba(255, 107, 157, 0.6); }
-    50% { transform: translate3d(0,0,0) scale(1.08); box-shadow: 0 0 22px rgba(196, 69, 105, 0.9); }
-    100% { transform: translate3d(0,0,0) scale(1.02); box-shadow: 0 0 12px rgba(255, 107, 157, 0.6); }
-}
+@keyframes winningPulse { 0% { transform: translate3d(0,0,0) scale(1.02); box-shadow: 0 0 12px rgba(255, 107, 157, 0.6); } 50% { transform: translate3d(0,0,0) scale(1.08); box-shadow: 0 0 22px rgba(196, 69, 105, 0.9); } 100% { transform: translate3d(0,0,0) scale(1.02); box-shadow: 0 0 12px rgba(255, 107, 157, 0.6); } }
 
+/* 🛠 改善：1手戻る・リセットボタンエリアのスマホ・PC対応パディング */
 .controls { display: flex; gap: 1.2rem; justify-content: center; margin-top: 1rem; margin-bottom: 1rem; width: 100%; max-width: 450px; padding: 0 8px; }
 
-.control-action-btn {
-    flex: 1; padding: 0.9rem 1.5rem; border: none; border-radius: 30px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; color: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); text-align: center; display: flex; align-items: center; justify-content: center;
-}
+/* 🛠 改善：「1手戻る」「リセット」ボタンを大きく（上下パディング 0.9rem → 1.1rem で押し心地アップ） */
+.control-action-btn { flex: 1; padding: 1.1rem 1.5rem; border: none; border-radius: 30px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; color: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); text-align: center; display: flex; align-items: center; justify-content: center; }
 .control-action-btn.undo-btn { background: linear-gradient(45deg, #2ecc71, #26ae60); }
 .control-action-btn.reset-btn { background: linear-gradient(45deg, #ff4757, #ee5a24); }
 .control-action-btn:disabled { opacity: 0.35 !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
 
 .cpu-selection-screen { width: 50%; min-height: 100vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 6rem 2rem 2rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: background 0.5s ease; }
 body.dark-theme .cpu-selection-screen { background: rgba(31, 41, 55, 0.95); }
-
 .header-back-btn { position: absolute; top: 1.2rem !important; left: 1.5rem !important; }
 .cpu-selection-content { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
-
 .cpu-title { font-size: 2.3rem; margin-bottom: 2rem; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: bold; }
 body.dark-theme .cpu-title { background: linear-gradient(45deg, #a78bfa, #f472b6); }
-
 .cpu-subtitle { font-size: 1.1rem; color: #666; margin-bottom: 0.8rem; font-weight: 500; margin-top: 0.5rem; }
 body.dark-theme .cpu-subtitle { color: #9ca3af; }
-
 .difficulty-options { display: flex; gap: 10px; margin-bottom: 2rem; justify-content: center; width: 100%; max-width: 400px; }
 .cpu-options { display: flex; flex-direction: column; gap: 1.2rem; align-items: center; width: 100%; }
-
-.cpu-option-btn {
-    display: flex; align-items: center; gap: 1rem; padding: 1.1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); min-width: 250px; border: none; color: white;
-}
+.cpu-option-btn { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); min-width: 250px; border: none; color: white; }
 .cpu-first-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
 .cpu-second-btn { background: linear-gradient(45deg, #ff6b9d, #c44569); }
 .cpu-random-btn { background: linear-gradient(45deg, #667eea, #764ba2); }
@@ -304,7 +116,6 @@ body.dark-theme .cpu-subtitle { color: #9ca3af; }
 .help-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 999999 !important; align-items: center; justify-content: center; }
 .help-modal .modal-content { background: white; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: modalSlideIn 0.3s ease-out; max-width: 600px; width: 90%; position: relative; max-height: 85vh; overflow-y: auto; }
 body.dark-theme .help-modal .modal-content { background: #1f2937; color: #f3f4f6; }
-
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; width: 100%; }
 .modal-header h2 { margin: 0; color: #333; font-size: 1.8rem; }
 body.dark-theme .modal-header h2 { color: #f3f4f6; }
@@ -314,7 +125,6 @@ body.dark-theme .close-btn { color: #9ca3af; }
 .help-content { display: flex; flex-direction: column; gap: 2rem; text-align: left; }
 .help-section h3 { color: #333; font-size: 1.3rem; margin-bottom: 1rem; text-align: left; }
 body.dark-theme .help-section h3 { color: #e5e7eb; }
-
 .rule-item-visual { display: flex; flex-direction: column; gap: 12px; padding: 15px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 12px; margin-bottom: 12px; }
 body.dark-theme .rule-item-visual { background: linear-gradient(135deg, #374151, #4b5563); }
 .rule-left { display: flex; align-items: flex-start; gap: 12px; }
@@ -323,11 +133,9 @@ body.dark-theme .rule-item-visual { background: linear-gradient(135deg, #374151,
 
 .visual-flow-container { display: grid; grid-template-columns: repeat(2, 1fr) !important; gap: 20px 15px !important; align-items: start; margin-top: 10px; background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; width: 100%; justify-content: center; }
 body.dark-theme .visual-flow-container { background: rgba(255,255,255,0.02); }
-
 .flow-step-block { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; text-align: center; }
 .step-title { font-size: 0.8rem; text-align: center; color: #666; font-weight: 600; }
 body.dark-theme .step-title { color: #9ca3af; }
-
 .diagram-grid-4 { display: grid; grid-template-columns: repeat(4, 26px); gap: 2px; }
 .step-desc-danger { font-size: 0.65rem; color: #ff4757; text-align: center; font-weight: 600; }
 .step-desc-purple { font-size: 0.65rem; color: #764ba2; text-align: center; font-weight: 600; }
@@ -343,7 +151,6 @@ body.dark-theme .diag-cell.empty { background: #111827; }
 body.dark-theme .diag-cell.ghost { background: #374151; border-color: #555; }
 
 .settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-
 .speed-toggle-btn { padding: 12px; border: 2px solid #e9ecef; background: white; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; color: #666; }
 body.dark-theme .speed-toggle-btn { background: #374151; border-color: #4b5563; color: #d1d5db; }
 .speed-toggle-btn:hover { background: #f8f9fa; border-color: #667eea; }
@@ -384,18 +191,23 @@ body.dark-theme .winner-modal .modal-content { background-color: #1f2937; color:
     .game-mode-buttons { gap: 1.5rem; width: 100%; max-width: 280px; }
     .play-btn { min-width: 100%; padding: 1.2rem 2rem; font-size: 1.2rem; border-radius: 30px; }
     
-    .game-board { width: calc(100vw - 32px); max-width: 100vw; margin-bottom: 1.5rem; margin-left: auto !important; margin-right: auto !important; justify-content: center; }
+    /* 📱 スマホ版盤面：ネガティブマージンを排除し、完全な中央揃えを絶対固定（右ズレを根絶） */
+    .game-board { width: calc(100vw - 32px) !important; max-width: 100vw !important; margin-bottom: 1.5rem !important; margin-left: auto !important; margin-right: auto !important; padding: 0 !important; display: grid !important; }
     .cell { width: 100% !important; height: auto !important; }
-    .game-board.size-6x6 { gap: 6px; }
+    
+    .game-board.size-6x6 { gap: 6px !important; grid-template-columns: repeat(6, 1fr) !important; }
     .game-board.size-6x6 .cell { font-size: 1.4rem; border-radius: 8px; }
-    .game-board.size-7x7 { gap: 4px; }
+    
+    .game-board.size-7x7 { gap: 4px !important; grid-template-columns: repeat(7, 1fr) !important; }
     .game-board.size-7x7 .cell { font-size: 1.15rem; border-radius: 6px; }
     
-    /* 🏆 スコアボード位置スマホ用微調整 */
+    /* 🏆 スコアボード・重力エリアのスマホ版マージン調整 */
     .match-scoreboard { margin-top: -2.5rem; margin-bottom: 2.5rem; }
-    .gravity-section { margin-top: 0rem; margin-bottom: 4.5rem; }
+    .gravity-section { margin-top: 0.5rem; margin-bottom: 4.5rem; }
     
-    .back-btn, .help-btn { width: 38px !important; height: 38px !important; font-size: 1.1rem !important; }
+    /* 🛠 改善：スマホ版でもヘッダーの「？」「⚙」「⇦」ボタンをガッツリ大きく（38px → 46px） */
+    .back-btn, .help-btn { width: 46px !important; height: 46px !important; font-size: 1.25rem !important; }
+    
     .game-header { padding: 1rem !important; }
     .game-header .back-btn { position: absolute; top: 1rem; right: 1rem; }
     .cpu-selection-screen { padding: 5rem 1.5rem 1.5rem 1.5rem; }
@@ -405,7 +217,6 @@ body.dark-theme .winner-modal .modal-content { background-color: #1f2937; color:
     .visual-flow-container { grid-template-columns: repeat(2, 1fr) !important; gap: 15px 10px !important; padding: 10px; width: 100%; }
 }
 
-/* ちょうど3つで消滅の追加スタイル */
 .responsive-diagram-box { display: flex; flex-direction: column !important; gap: 8px !important; padding: 12px 20px !important; align-items: center !important; }
 .diag-row-group { display: flex; gap: 5px; justify-content: center; width: 100%; }
 .diag-arrow-down { font-size: 1rem; color: #764ba2; font-weight: bold; line-height: 1; margin: 2px 0; }
