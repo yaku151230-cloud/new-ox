@@ -154,7 +154,7 @@ body.dark-theme .title-new {
     min-height: 100vh;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    padding: 5.5rem 2rem 2rem 2rem; /* 上部に余白を設けてボタン配置を統一 */
+    padding: 5.5rem 2rem 2rem 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -206,21 +206,22 @@ body.dark-theme .game-screen { background: rgba(31, 41, 55, 0.95); }
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+/* 🌎 重力セクションの配置改善（上部に移動させ、盤面との被りを防止） */
 .gravity-section {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin-bottom: 3.5rem;
-    margin-top: 0rem;
+    margin-top: -1rem;
+    margin-bottom: 4.5rem;
 }
 
 .gravity-btn {
     background: linear-gradient(45deg, #4ecdc4, #44a08d);
     color: white;
     border: none;
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 2rem;
     border-radius: 25px;
     font-size: 1rem;
     font-weight: 600;
@@ -242,29 +243,31 @@ body.dark-theme .gravity-btn:disabled {
 
 .gravity-directions {
     position: absolute;
-    top: 100%;
+    top: 110%;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10;
+    z-index: 110;
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 30px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     padding: 8px;
+    display: flex;
+    gap: 8px;
 }
 
 body.dark-theme .gravity-directions { background: #374151; }
 
 .direction-btn {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     background: linear-gradient(45deg, #667eea, #764ba2);
     color: white;
     border: none;
     border-radius: 50%;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -312,6 +315,7 @@ body.dark-theme .status { color: #d1d5db; }
     transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
     -webkit-tap-highlight-color: transparent;
+    will-change: transform, background, border-color; /* カクツキ軽減 */
 }
 
 body.dark-theme .cell {
@@ -319,7 +323,6 @@ body.dark-theme .cell {
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* 🟥 改善：マイルドな自爆警告表示 */
 .cell.danger-border {
     border-color: rgba(255, 71, 87, 0.45) !important;
     background: linear-gradient(145deg, #fff5f5, #ffe8e8) !important;
@@ -511,7 +514,7 @@ body.dark-theme .cpu-subtitle { color: #9ca3af; }
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 999999 !important; /* モーダルを最前面に固定してタップバグを防ぐ */
+    z-index: 999999 !important;
     align-items: center;
     justify-content: center;
 }
@@ -598,7 +601,6 @@ body.dark-theme .rule-item-visual {
     gap: 12px;
 }
 
-/* 💻 PC改善：テキスト折り返しのバグを完全に修正 */
 .wrap-text {
     word-break: break-all;
     white-space: normal;
@@ -731,6 +733,7 @@ body.dark-theme .speed-toggle-btn.active {
     background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
 }
 
+/* 🟥 勝敗結果モーダル構造調整（スマホ版のボタン崩れを完全解消） */
 .winner-modal {
     display: none;
     position: fixed;
@@ -740,7 +743,7 @@ body.dark-theme .speed-toggle-btn.active {
     height: 100vh;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
-    z-index: 9999999 !important; /* 確実に最前面へ配置 */
+    z-index: 9999999 !important;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -748,7 +751,7 @@ body.dark-theme .speed-toggle-btn.active {
 
 .winner-modal .modal-content {
     background-color: white;
-    padding: 40px;
+    padding: 40px 30px;
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     text-align: center;
@@ -774,19 +777,23 @@ body.dark-theme .winner-modal .modal-content {
     width: 100%;
 }
 
-.winner-modal button {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+/* 形が崩れないよう、角丸とパディング、リセット周りを厳密化 */
+.winner-modal-buttons button {
+    width: 100% !important;
+    height: auto !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    border-radius: 50px !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    display: block !important;
+    text-align: center !important;
 }
 
 .winner-modal .play-again-btn { background: linear-gradient(45deg, #4ecdc4, #44a08d); color: white; }
-.winner-modal .back-btn { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; }
+.winner-modal .back-to-main-btn { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; }
 
 .loading-overlay {
     position: fixed;
@@ -858,7 +865,12 @@ body.dark-theme .winner-modal .modal-content {
         font-size: 1.4rem; 
         border-radius: 8px; 
     }
-    .gravity-section { margin-bottom: 2rem; }
+    
+    /* 重力セクションのスマホ版調整（被りを徹底排除） */
+    .gravity-section { 
+        margin-top: 0rem;
+        margin-bottom: 4rem; 
+    }
     
     .back-btn, .help-btn {
         width: 38px !important;
@@ -871,7 +883,6 @@ body.dark-theme .winner-modal .modal-content {
     .cpu-selection-screen { padding: 5rem 1.5rem 1.5rem 1.5rem; }
     .header-back-btn { top: 1rem !important; left: 1rem !important; }
 
-    /* 📱 スマホ改善：ルール説明と連鎖図解の縦方向最適化、はみ出しブロック */
     .responsive-diagram-box {
         flex-direction: column !important;
         gap: 10px;
@@ -884,7 +895,6 @@ body.dark-theme .winner-modal .modal-content {
         align-items: center;
     }
     
-    /* 📱 スマホ改善：矢印が縦並びのフローに合うように下を向くよう自動回転 */
     .flex-arrow {
         transform: rotate(90deg); 
         margin: 5px 0;
