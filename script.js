@@ -201,7 +201,7 @@ class TicTacToe {
         }
         
         this.resetGame();
-        this.currentPlayer = this.initialStartingPlayer; // 強制上書きを防ぎ選択した順番を死守
+        this.currentPlayer = this.initialStartingPlayer; 
         this.updateStatus();
         this.updateGravityButton();
         
@@ -329,7 +329,6 @@ class TicTacToe {
     
     getCpuMove() {
         const size = this.boardSize;
-        // 1. 自分がそこに置くことで即座に「4つ並んで勝利」できるマスをスキャン
         for (let i = 0; i < this.maxCells; i++) { 
             if (this.board[i] === '') { 
                 const virtualBoard = Array.from(this.board);
@@ -339,13 +338,11 @@ class TicTacToe {
                 if (isWin) { if (this.difficulty === 'easy' || !isErased) return i; } 
             } 
         }
-        // 2. 重力一発で勝利できるかチェック（イージー以外）
         if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { 
             for (const dir of ['up', 'down', 'left', 'right']) { 
                 if (this.checkWinnerForSimulatedBoard(this.simulateGravity(dir), this.cpuPlayer)) { this.useGravity(dir); return 'gravity'; } 
             } 
         }
-        // 3. 相手（プレイヤー）の4つ並びリーチを阻止する
         let opponentReachIndex = -1;
         for (let i = 0; i < this.maxCells; i++) { 
             if (this.board[i] === '') { 
@@ -420,7 +417,6 @@ class TicTacToe {
         if (centralMyStrategic.length > 0) return centralMyStrategic[Math.floor(Math.random() * centralMyStrategic.length)]; if (centralOpponentStrategic.length > 0) return centralOpponentStrategic[Math.floor(Math.random() * centralOpponentStrategic.length)]; if (myStrategic.length > 0) return myStrategic[Math.floor(Math.random() * myStrategic.length)]; if (opponentStrategic.length > 0) return opponentStrategic[Math.floor(Math.random() * opponentStrategic.length)]; if (centralCells.length > 0) return centralCells[Math.floor(Math.random() * centralCells.length)]; if (finalCandidateCells.length > 0) return finalCandidateCells[Math.floor(Math.random() * finalCandidateCells.length)]; return emptyCells[Math.floor(Math.random() * emptyCells.length)];
     }
     
-    // 🏆 完全隔離版：指定された仮想盤面データの上だけで3つ並び自爆を検証するメソッド
     wouldPlayerLosePiecesOnBoard(targetBoard, moveIndex, player) {
         const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; const row = Math.floor(moveIndex / size); const col = moveIndex % size;
         for (let [dx, dy] of directions) {
@@ -433,7 +429,6 @@ class TicTacToe {
     
     simulateGravity(direction) { return this.simulateGravityOnBoard(this.board, direction); }
 
-    // 🏆 完全隔離版：グローバルな盤面を一切書き換えない重力シミュレーター
     simulateGravityOnBoard(targetBoard, direction) {
         const size = this.boardSize; const newBoard = Array(this.maxCells).fill('');
         if (direction === 'up') { for (let col = 0; col < size; col++) { let w = col; for (let row = 0; row < size; row++) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w += size; } } } } 
@@ -456,17 +451,7 @@ class TicTacToe {
         this.board = newBoard; if (moves.length > 0) await this.animateGravityMoves(moves); else this.updateBoardDisplay(); await this.afterGravityCheck();
     }
     
-    // ⭕ 修正後（無限ループを完全に防止）
-async animateGravityMoves(moves) { 
-    if (moves.length === 0) return; 
-    // 安全のため、ループの最大回数を現在の盤面サイズ（6か7）にカチッと制限します
-    const maxDistance = Math.min(this.boardSize, Math.max(...moves.map(move => Math.abs(move.to - move.from)))); 
-    for (let step = 1; step <= maxDistance; step++) { 
-        await this.animateAllMovesOneStep(moves, step); 
-        if (step < maxDistance) await this.sleep(120); 
-    } 
-    this.updateBoardDisplay(); 
-}
+    async animateGravityMoves(moves) { if (moves.length === 0) return; const maxDistance = Math.min(this.boardSize, Math.max(...moves.map(move => Math.abs(move.to - move.from)))); for (let step = 1; step <= maxDistance; step++) { await this.animateAllMovesOneStep(moves, step); if (step < maxDistance) await this.sleep(120); } this.updateBoardDisplay(); }
     async animateAllMovesOneStep(moves, step) { return new Promise((resolve) => { const cellsToUpdate = new Set(); moves.forEach(move => { const distance = Math.abs(move.to - move.from); if (step <= distance) { const c = this.calculateCurrentPosition(move, step); const p = this.calculateCurrentPosition(move, step - 1); if (c !== p) cellsToUpdate.add({ from: p, to: c, value: move.value }); } }); cellsToUpdate.forEach(update => { const fromCell = document.querySelector(`[data-index="${update.from}"]`); const toCell = document.querySelector(`[data-index="${update.to}"]`); if (fromCell && toCell) { fromCell.textContent = ''; fromCell.classList.remove('o', 'x'); toCell.textContent = update.value === 'o' ? '〇' : '✕'; toCell.classList.add(update.value, 'moving'); } }); setTimeout(() => { cellsToUpdate.forEach(update => { const toCell = document.querySelector(`[data-index="${update.to}"]`); if (toCell) toCell.classList.remove('moving'); }); resolve(); }, 100); }); }
     calculateCurrentPosition(move, step) { const direction = this.lastGravityDirection; const size = this.boardSize; const fromRow = Math.floor(move.from / size); const fromCol = move.from % size; const toRow = Math.floor(move.to / size); const toCol = move.to % size; let currentRow, currentCol; if (direction === 'up') { currentRow = fromRow - Math.min(step, fromRow - toRow); currentCol = fromCol; } else if (direction === 'down') { currentRow = fromRow + Math.min(step, toRow - fromRow); currentCol = fromCol; } else if (direction === 'left') { currentRow = fromRow; currentCol = fromCol - Math.min(step, fromCol - toCol); } else if (direction === 'right') { currentRow = fromRow; currentCol = fromCol + Math.min(step, toCol - fromCol); } return currentRow * size + currentCol; }
     sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -498,7 +483,7 @@ async animateGravityMoves(moves) {
         this.gameActive = false; const modalBtn = document.getElementById('play-again-btn');
         if (isDraw) { modalBtn.textContent = "この試合を再戦"; if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal('引き分けです！'); } else { setTimeout(() => { this.showWinnerModal('引き分けです！'); }, 500); } return; }
         const roundWinner = this.currentPlayer; this.highlightWinningLine(); this.scores[roundWinner]++; this.updateScoreboardDisplay();
-        if (this.scores[roundWinner] >= this.targetWins) { this.isMatchOver = true; modalBtn.textContent = "もう一度最初から"; const msg = roundWinner === 'o' ? '〇の勝利！' : '✕の勝利！'; if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal(msg); } else { setTimeout(() => { this.showWinnerModal(msg); }, 500); } } 
+        if (this.scores[roundWinner] >= this.targetWins) { this.isMatchOver = true; modalBtn.textContent = "もう一度最初から"; const msg = roundWinner === 'o' ? '〇の完全勝利！おめでとう！' : '✕の完全勝利！おめでとう！'; if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal(msg); } else { setTimeout(() => { this.showWinnerModal(msg); }, 500); } } 
         else { this.isMatchOver = false; modalBtn.textContent = "次の試合（ラウンド）へ"; const msg = customMessage || (roundWinner === 'o' ? '〇が1勝を獲得！' : '✕が1勝を獲得！'); if (showImmediately) { this.hideLoadingIndicator(); this.showWinnerModal(msg); } else { setTimeout(() => { this.showWinnerModal(msg); }, 500); } }
     }
     
@@ -523,6 +508,8 @@ async animateGravityMoves(moves) {
     resetGame() { this.board = Array(this.maxCells).fill(''); this.gameActive = true; this.gravityUsed = { o: false, x: false }; this.lastGravityDirection = null; this.currentPlayer = this.initialStartingPlayer || 'o'; this.historyStack = []; this.clearBoard(); this.updateStatus(); this.updateGravityButton(); this.hideWinnerModal(); document.getElementById('gravity-directions').style.display = 'none'; this.scanAndRenderDangerZones(); this.updateUndoButtonState(); }
     playAgain() { if (this.isMatchOver) { this.resetMatchScoresAndGame(); } else { this.resetGame(); this.currentPlayer = this.initialStartingPlayer; this.updateStatus(); this.updateGravityButton(); } if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) { setTimeout(() => this.makeCpuMove(), 500); } }
     clearBoard() { document.querySelectorAll('.cell').forEach(cell => { cell.textContent = ''; cell.className = 'cell'; cell.style.background = ''; cell.style.boxShadow = ''; cell.style.border = ''; cell.style.transform = ''; }); }
+    
+    checkWinnerForPlayer(player) { return this.checkWinnerForSimulatedBoard(this.board, player); }
     
     checkWinnerForSimulatedBoard(board, player) { 
         const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; 
