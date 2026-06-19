@@ -14,9 +14,7 @@ class TicTacToe {
         this.humanPlayer = 'o'; 
         this.initialStartingPlayer = 'o';
         
-        // CPU戦用の内部選択状態（確定ボタンを押すまでこれを保持）
-        this.selectedCpuOrder = 'human'; // 'human', 'cpu', 'random'
-        
+        this.selectedCpuOrder = 'human'; 
         this.targetWins = 1;      
         this.scores = { o: 0, x: 0 }; 
         this.isMatchOver = false;  
@@ -30,6 +28,9 @@ class TicTacToe {
         this.activeHoldDirection = null; 
         
         this.historyStack = [];
+        this.isAnimating = false;
+        
+        this.lastHumanMove = null; 
         
         this.initializeGame();
     }
@@ -52,10 +53,8 @@ class TicTacToe {
         document.getElementById('match-2-btn').addEventListener('click', () => this.setMatchTargetSetting(2));
         document.getElementById('match-3-btn').addEventListener('click', () => this.setMatchTargetSetting(3));
         
-        // 共通の最終確定スタートボタンイベント
         document.getElementById('game-start-final-btn').addEventListener('click', () => this.processFinalStart());
         
-        // CPUの先手・後手・ランダムのトグル選択
         document.getElementById('cpu-first-btn').addEventListener('click', () => this.setCpuOrderSetting('human'));
         document.getElementById('cpu-second-btn').addEventListener('click', () => this.setCpuOrderSetting('cpu'));
         document.getElementById('cpu-random-btn').addEventListener('click', () => this.setCpuOrderSetting('random'));
@@ -82,13 +81,14 @@ class TicTacToe {
         document.getElementById('theme-default-btn').addEventListener('click', () => this.setTheme('default'));
         document.getElementById('theme-dark-btn').addEventListener('click', () => this.setTheme('dark'));
         document.getElementById('guide-on-btn').addEventListener('click', () => this.setGuideMode(true));
+        document.getElementById('guide-off-btn').classList.add('active'); // 初期値
         document.getElementById('guide-off-btn').addEventListener('click', () => this.setGuideMode(false));
         
         document.getElementById('help-modal').addEventListener('click', (e) => { if (e.target.id === 'help-modal') this.hideHelpModal(); });
         document.getElementById('settings-modal').addEventListener('click', (e) => { if (e.target.id === 'settings-modal') this.hideSettingsModal(); });
         
         document.getElementById('gravity-btn').addEventListener('click', () => {
-            if (this.gravityUsed[this.currentPlayer]) return;
+            if (this.isAnimating || this.gravityUsed[this.currentPlayer]) return;
             const directions = document.getElementById('gravity-directions');
             if (directions.style.display === 'flex') { directions.style.display = 'none'; this.stopGravityPreview(); } 
             else { directions.style.display = 'flex'; }
@@ -179,6 +179,7 @@ class TicTacToe {
 
         this.scores = { o: 0, x: 0 };
         this.isMatchOver = false;
+        this.isAnimating = false; 
 
         if (mode === 'p2') {
             this.isCpuMode = false; 
@@ -204,6 +205,7 @@ class TicTacToe {
         this.currentPlayer = this.initialStartingPlayer; 
         this.updateStatus();
         this.updateGravityButton();
+        this.updateUndoButtonState();
         
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) {
             setTimeout(() => this.makeCpuMove(), 500);
@@ -220,6 +222,7 @@ class TicTacToe {
     }
 
     resetMatchScoresAndGame() {
+        if (this.isAnimating) return; 
         this.scores = { o: 0, x: 0 };
         this.isMatchOver = false;
         this.updateScoreboardDisplay();
@@ -238,8 +241,9 @@ class TicTacToe {
     }
 
     undoLastMove() {
-        if (this.historyStack.length === 0 || !this.gameActive) return;
+        if (this.isAnimating || this.historyStack.length === 0 || !this.gameActive) return;
         this.stopGravityPreview();
+        
         let undoCount = (this.isCpuMode) ? 2 : 1; 
         if (this.isCpuMode && this.historyStack.length < 2) undoCount = 1;
         for (let i = 0; i < undoCount; i++) {
@@ -252,10 +256,15 @@ class TicTacToe {
         }
         this.renderActualFrame(); this.updateStatus(); this.updateGravityButton(); this.updateUndoButtonState(); this.scanAndRenderDangerZones(); 
         document.getElementById('gravity-directions').style.display = 'none';
+        
+        this.lastHumanMove = null;
     }
 
-    updateUndoButtonState() { document.getElementById('undo-btn').disabled = (this.historyStack.length === 0); }
-    showMainScreen() { this.hideWinnerModal(); document.getElementById('game-screen').style.display = 'none'; document.getElementById('cpu-selection-screen').style.display = 'none'; document.getElementById('main-screen').style.display = 'flex'; this.gameActive = false; }
+    updateUndoButtonState() { 
+        document.getElementById('undo-btn').disabled = (this.historyStack.length === 0 || this.isAnimating); 
+    }
+    
+    showMainScreen() { this.hideWinnerModal(); document.getElementById('game-screen').style.display = 'none'; document.getElementById('cpu-selection-screen').style.display = 'none'; document.getElementById('main-screen').style.display = 'flex'; this.gameActive = false; this.isAnimating = false; }
     showHelpModal() { document.getElementById('help-modal').style.display = 'flex'; }
     hideHelpModal() { document.getElementById('help-modal').style.display = 'none'; }
     showSettingsModal() { document.getElementById('settings-modal').style.display = 'flex'; }
@@ -278,7 +287,7 @@ class TicTacToe {
     setGuideMode(isOn) { this.isGuideMode = isOn; document.getElementById('guide-on-btn').classList.toggle('active', isOn); document.getElementById('guide-off-btn').classList.toggle('active', !isOn); this.stopGravityPreview(); this.scanAndRenderDangerZones(); }
 
     scanAndRenderDangerZones() {
-        if (!this.gameActive || !this.isGuideMode) { document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('danger-border')); return; }
+        if (!this.gameActive || !this.isGuideMode || this.isAnimating) { document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('danger-border')); return; }
         if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return; 
         for (let i = 0; i < this.maxCells; i++) {
             const targetCell = document.querySelector(`[data-index="${i}"]`); if (!targetCell) continue;
@@ -290,7 +299,7 @@ class TicTacToe {
     }
 
     handleDirectionTouchStart(e) {
-        if (!this.gameActive || !this.isGuideMode) return; if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return; e.preventDefault(); 
+        if (!this.gameActive || !this.isGuideMode || this.isAnimating) return; if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return; e.preventDefault(); 
         const btn = e.target.closest('.direction-btn'); const direction = btn.dataset.direction; this.activeHoldDirection = direction; btn.classList.add('preview-active'); this.startGravityPreview(direction);
     }
 
@@ -306,7 +315,7 @@ class TicTacToe {
     }
 
     startGravityPreview(direction) {
-        if (!this.gameActive || !this.isGuideMode) return; if (this.previewInterval) clearInterval(this.previewInterval); const simulatedBoard = this.simulateGravity(direction); this.previewState = 'future'; this.renderPreviewFrame(simulatedBoard);
+        if (!this.gameActive || !this.isGuideMode || this.isAnimating) return; if (this.previewInterval) clearInterval(this.previewInterval); const simulatedBoard = this.simulateGravity(direction); this.previewState = 'future'; this.renderPreviewFrame(simulatedBoard);
         this.previewInterval = setInterval(() => { if (this.previewState === 'future') { this.previewState = 'actual'; this.renderActualFrame(); } else { this.previewState = 'future'; this.renderPreviewFrame(simulatedBoard); } }, 1000);
     }
 
@@ -315,108 +324,512 @@ class TicTacToe {
     renderActualFrame() { const cells = document.querySelectorAll('.cell'); cells.forEach((cell, index) => { const actualValue = this.board[index]; if (actualValue !== '') { cell.className = `cell ${actualValue}`; cell.textContent = actualValue === 'o' ? '〇' : '✕'; } else { cell.className = 'cell'; cell.textContent = ''; } }); }
     
     async handleCellClick(e) {
-        if (!this.gameActive) return; if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
+        if (!this.gameActive || this.isAnimating) return; if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) return;
         const cell = e.target; const index = parseInt(cell.dataset.index); if (this.board[index] !== '') return;
-        this.saveSnapshotToHistory(); await this.makeMove(index);
-        if (this.gameActive) { this.switchPlayer(); this.updateStatus(); this.updateGravityButton(); this.scanAndRenderDangerZones(); if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) setTimeout(() => this.makeCpuMove(), 500); }
+        
+        if (this.isCpuMode) {
+            this.lastHumanMove = index;
+        }
+
+        this.isAnimating = true; 
+        this.saveSnapshotToHistory(); 
+        await this.makeMove(index);
+        
+        if (this.gameActive) { 
+            this.switchPlayer(); 
+            this.updateStatus(); 
+            this.isAnimating = false; 
+            this.updateGravityButton(); 
+            this.updateUndoButtonState();
+            this.scanAndRenderDangerZones(); 
+            if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) setTimeout(() => this.makeCpuMove(), 500); 
+        } else {
+            this.isAnimating = false;
+            this.updateGravityButton();
+            this.updateUndoButtonState();
+        }
     }
+    
+    // ==========================================
+    // CPU 思考ロジック（完全体Minimax搭載）
+    // ==========================================
     
     async makeCpuMove() {
-        if (!this.gameActive || this.currentPlayer !== this.cpuPlayer) return; const cells = document.querySelectorAll('.cell'); cells.forEach(cell => cell.classList.remove('danger-border'));
-        this.saveSnapshotToHistory(); const move = this.getCpuMove(); if (move === 'gravity') return;
-        else if (move !== -1) { await this.makeMove(move); if (this.gameActive) { setTimeout(() => { this.switchPlayer(); this.updateStatus(); this.updateGravityButton(); this.scanAndRenderDangerZones(); }, 500); } }
-    }
-    
-    getCpuMove() {
-        const size = this.boardSize;
-        for (let i = 0; i < this.maxCells; i++) { 
-            if (this.board[i] === '') { 
-                const virtualBoard = Array.from(this.board);
-                virtualBoard[i] = this.cpuPlayer; 
-                const isWin = this.checkWinnerForSimulatedBoard(virtualBoard, this.cpuPlayer); 
-                const isErased = this.wouldPlayerLosePiecesOnBoard(virtualBoard, i, this.cpuPlayer); 
-                if (isWin) { if (this.difficulty === 'easy' || !isErased) return i; } 
-            } 
-        }
-        if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { 
-            for (const dir of ['up', 'down', 'left', 'right']) { 
-                if (this.checkWinnerForSimulatedBoard(this.simulateGravity(dir), this.cpuPlayer)) { this.useGravity(dir); return 'gravity'; } 
-            } 
-        }
-        let opponentReachIndex = -1;
-        for (let i = 0; i < this.maxCells; i++) { 
-            if (this.board[i] === '') { 
-                const virtualBoard = Array.from(this.board);
-                virtualBoard[i] = this.humanPlayer; 
-                if (this.checkWinnerForSimulatedBoard(virtualBoard, this.humanPlayer)) { opponentReachIndex = i; break; } 
-            } 
-        }
-        if (opponentReachIndex !== -1) {
-            const virtualBoard = Array.from(this.board);
-            virtualBoard[opponentReachIndex] = this.cpuPlayer;
-            const willSelfDestruct = this.wouldPlayerLosePiecesOnBoard(virtualBoard, opponentReachIndex, this.cpuPlayer);
-            if (!willSelfDestruct) return opponentReachIndex;
-            else { 
-                if (this.difficulty !== 'easy' && !this.gravityUsed[this.cpuPlayer]) { 
-                    const defensiveDir = this.findDefensiveGravityMove(); 
-                    if (defensiveDir) { this.useGravity(defensiveDir); return 'gravity'; } 
-                } 
-                return opponentReachIndex; 
-            }
-        }
-
-        const emptyCells = []; for (let i = 0; i < this.maxCells; i++) { if (this.board[i] === '') emptyCells.push(i); }
-        let finalCandidateCells = [...emptyCells];
+        if (!this.gameActive || this.currentPlayer !== this.cpuPlayer || this.isAnimating) return; 
         
-        if (this.difficulty === 'hard') {
-            const safeCells = [];
-            for (const moveIndex of emptyCells) {
-                const vBoard = Array.from(this.board);
-                vBoard[moveIndex] = this.cpuPlayer;
-                if (this.wouldPlayerLosePiecesOnBoard(vBoard, moveIndex, this.cpuPlayer)) continue;
-                
-                let isDangerous = false; 
-                if (!this.gravityUsed[this.humanPlayer]) { 
-                    for (const dir of ['up', 'down', 'left', 'right']) { 
-                        if (this.checkWinnerForSimulatedBoard(this.simulateGravityOnBoard(vBoard, dir), this.humanPlayer)) isDangerous = true; 
-                    } 
-                }
-                for (let h = 0; h < this.maxCells; h++) { 
-                    if (vBoard[h] === '') { 
-                        vBoard[h] = this.humanPlayer; 
-                        if (this.checkWinnerForSimulatedBoard(vBoard, this.humanPlayer)) isDangerous = true; 
-                        vBoard[h] = ''; 
-                    } 
-                }
-                if (!isDangerous) safeCells.push(moveIndex);
-            }
-            if (safeCells.length > 0) finalCandidateCells = safeCells;
+        document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('danger-border'));
+        this.isAnimating = true; 
+        this.saveSnapshotToHistory(); 
+        
+        const move = this.getCpuMove(); 
+        
+        if (typeof move === 'string' && move.startsWith('gravity-')) {
+            let dir = move.replace('gravity-', '');
+            this.isAnimating = false; 
+            await this.useGravity(dir);
+            return;
         }
-
-        if (this.difficulty !== 'easy') {
-            for (const i of finalCandidateCells) { 
-                const vBoard = Array.from(this.board); vBoard[i] = this.cpuPlayer; 
-                let success = false; 
-                for (const d of ['up', 'down', 'left', 'right']) { if (this.checkWinnerForSimulatedBoard(this.simulateGravityOnBoard(vBoard, d), this.cpuPlayer)) success = true; } 
-                if (success) return i; 
+        
+        if (move !== -1 && typeof move === 'number') { 
+            await this.makeMove(move); 
+            
+            if (this.gameActive) { 
+                this.switchPlayer(); 
+                this.updateStatus(); 
+                this.isAnimating = false; 
+                this.updateGravityButton(); 
+                this.updateUndoButtonState();
+                this.scanAndRenderDangerZones(); 
+            } else {
+                this.isAnimating = false;
+                this.updateGravityButton();
+                this.updateUndoButtonState();
             }
-            for (const i of finalCandidateCells) { 
-                const vBoard = Array.from(this.board); vBoard[i] = this.cpuPlayer; 
-                let patterns = 0; 
-                for (let n = 0; n < this.maxCells; n++) { if (vBoard[n] === '') { vBoard[n] = this.cpuPlayer; if (this.checkWinnerForSimulatedBoard(vBoard, this.cpuPlayer) && !this.wouldPlayerLosePiecesOnBoard(vBoard, n, this.cpuPlayer)) patterns++; vBoard[n] = ''; } } 
-                if (patterns >= 2) return i; 
-            }
+        } else {
+            this.isAnimating = false;
+            this.updateGravityButton();
+            this.updateUndoButtonState();
         }
-
-        const centralMyStrategic = []; const centralOpponentStrategic = []; const myStrategic = []; const opponentStrategic = []; const centralCells = [];
-        for (const i of finalCandidateCells) {
-            const isNearMe = this.isNearPlayer(i, this.cpuPlayer); const isNearOpponent = this.isNearPlayer(i, this.humanPlayer); const row = Math.floor(i / size); const col = i % size; const isCentral = (row >= 1 && row <= (size-2) && col >= 1 && col <= (size-2));
-            if (isCentral) { centralCells.push(i); if (isNearMe) centralMyStrategic.push(i); if (isNearOpponent) centralOpponentStrategic.push(i); }
-            if (isNearMe) myStrategic.push(i); else if (isNearOpponent) opponentStrategic.push(i);
-        }
-        if (centralMyStrategic.length > 0) return centralMyStrategic[Math.floor(Math.random() * centralMyStrategic.length)]; if (centralOpponentStrategic.length > 0) return centralOpponentStrategic[Math.floor(Math.random() * centralOpponentStrategic.length)]; if (myStrategic.length > 0) return myStrategic[Math.floor(Math.random() * myStrategic.length)]; if (opponentStrategic.length > 0) return opponentStrategic[Math.floor(Math.random() * opponentStrategic.length)]; if (centralCells.length > 0) return centralCells[Math.floor(Math.random() * centralCells.length)]; if (finalCandidateCells.length > 0) return finalCandidateCells[Math.floor(Math.random() * finalCandidateCells.length)]; return emptyCells[Math.floor(Math.random() * emptyCells.length)];
     }
     
+    // 盤面にある勝ち筋（通常手+重力）の数を数える関数（フォーク検知用）
+    countWinningMoves(board, player) {
+        let winCount = 0;
+        for (let i = 0; i < this.maxCells; i++) {
+            if (board[i] === '') {
+                if (this.wouldPlayerLosePiecesOnBoard(board, i, player)) continue;
+                let tb = [...board]; tb[i] = player;
+                if (this.checkWinnerForSimulatedBoard(tb, player)) winCount++;
+            }
+        }
+        if (!this.gravityUsed[player]) {
+            for (let dir of ['up', 'down', 'left', 'right']) {
+                let tb = this.simulateGravityAndChainBoardSync(board, dir);
+                if (this.checkWinnerForSimulatedBoard(tb, player)) winCount++;
+            }
+        }
+        return winCount;
+    }
+
+    // 相手がどう防御しても、自分の勝ち筋が1つ以上残るか（完全な詰み判定）
+    isForcedWinHard(boardAfterCpu, cpuPlayer, humanPlayer) {
+        // 相手の通常防衛をすべてシミュレーション
+        for (let j = 0; j < this.maxCells; j++) {
+            if (boardAfterCpu[j] === '') {
+                if (this.wouldPlayerLosePiecesOnBoard(boardAfterCpu, j, humanPlayer)) continue;
+                let hb = [...boardAfterCpu]; hb[j] = humanPlayer;
+                if (this.checkWinnerForSimulatedBoard(hb, humanPlayer)) return false; // 相手に逆に勝たれるなら詰み失敗
+                if (this.countWinningMoves(hb, cpuPlayer) === 0) return false; // 全て防がれたら詰み失敗
+            }
+        }
+        // 相手の重力防衛をすべてシミュレーション
+        if (!this.gravityUsed[humanPlayer]) {
+            for (let dir of ['up', 'down', 'left', 'right']) {
+                let hbg = this.simulateGravityAndChainBoardSync(boardAfterCpu, dir);
+                if (this.checkWinnerForSimulatedBoard(hbg, humanPlayer)) return false;
+                if (this.countWinningMoves(hbg, cpuPlayer) === 0) return false;
+            }
+        }
+        return true; // 相手のすべての手に対して、自分に勝ち筋が残る！
+    }
+
+    getCpuMove() {
+        let emptyCells = [];
+        for(let i=0; i<this.maxCells; i++) { if(this.board[i] === '') emptyCells.push(i); }
+        if(emptyCells.length === 0) return -1;
+        
+        // 1. 自分が1手で勝てるマス
+        for(let i of emptyCells) {
+            let tb = [...this.board]; tb[i] = this.cpuPlayer;
+            if(this.checkWinnerForSimulatedBoard(tb, this.cpuPlayer) && !this.wouldPlayerLosePiecesOnBoard(tb, i, this.cpuPlayer)) return i;
+        }
+
+        // 2. 重力を使って1手で勝てる方向
+        if(!this.gravityUsed[this.cpuPlayer]) {
+            for(let dir of ['up', 'down', 'left', 'right']) {
+                if(this.checkWinnerForSimulatedBoard(this.simulateGravityOnBoard(this.board, dir), this.cpuPlayer)) return 'gravity-' + dir;
+            }
+        }
+
+        // 3. 連鎖重力勝利（ハードのみ）
+        if(this.difficulty === 'hard' && !this.gravityUsed[this.cpuPlayer]) {
+            for(let dir of ['up', 'down', 'left', 'right']) {
+                let tb = this.simulateGravityAndChainBoardSync(this.board, dir);
+                if(this.checkWinnerForSimulatedBoard(tb, this.cpuPlayer)) return 'gravity-' + dir;
+            }
+        }
+
+        // --- ★ 超強化：3.5 自分が「詰み（必勝）」にできる手があれば打つ ---
+        if(this.difficulty === 'hard') {
+            for(let i of emptyCells) {
+                let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+                if(this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) continue;
+                
+                // 軽いチェック：自分がそこに打ったら勝ち筋が2つ以上（フォーク）できるか？
+                if(this.countWinningMoves(myTb, this.cpuPlayer) >= 2) {
+                    // フォークできるなら、相手が重力等で絶対に防ぎきれないか厳密チェック
+                    if(this.isForcedWinHard(myTb, this.cpuPlayer, this.humanPlayer)) {
+                        return i;
+                    }
+                }
+            }
+        }
+
+        // 4. 相手の通常リーチ阻止（自爆時は重力で破壊を試みる）
+        for(let i of emptyCells) {
+            let tb = [...this.board]; tb[i] = this.humanPlayer;
+            if(this.checkWinnerForSimulatedBoard(tb, this.humanPlayer)) {
+                let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+                
+                if(!this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) {
+                    return i;
+                } else {
+                    if ((this.difficulty === 'normal' || this.difficulty === 'hard') && !this.gravityUsed[this.cpuPlayer]) {
+                        for (let dir of ['up', 'down', 'left', 'right']) {
+                            let simFunc = this.difficulty === 'hard' ? this.simulateGravityAndChainBoardSync.bind(this) : this.simulateGravityOnBoard.bind(this);
+                            let boardAfterGrav = simFunc(this.board, dir);
+                            if (!this.checkWinnerForSimulatedBoard(boardAfterGrav, this.humanPlayer)) {
+                                return 'gravity-' + dir;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 5. 相手の重力リーチ阻止
+        if(!this.gravityUsed[this.humanPlayer]) {
+            for(let dir of ['up', 'down', 'left', 'right']) {
+                let hg = this.simulateGravityOnBoard(this.board, dir);
+                if(this.checkWinnerForSimulatedBoard(hg, this.humanPlayer)) {
+                    for(let i of emptyCells) {
+                        let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+                        if(!this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) {
+                            let afterG = this.simulateGravityOnBoard(myTb, dir);
+                            if(!this.checkWinnerForSimulatedBoard(afterG, this.humanPlayer)) return i;
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- ★ 超強化：5.5 相手の「詰み（必勝）」を事前に潰す ---
+        if(this.difficulty === 'hard') {
+            for(let i of emptyCells) {
+                let hTb = [...this.board]; hTb[i] = this.humanPlayer;
+                if(this.wouldPlayerLosePiecesOnBoard(hTb, i, this.humanPlayer)) continue;
+                
+                // 相手がここに打つとフォークが完成するか？
+                if(this.countWinningMoves(hTb, this.humanPlayer) >= 2) {
+                    // 相手のフォークが完成した場合、こちらがどう足掻いても負けるか？
+                    if(this.isForcedWinHard(hTb, this.humanPlayer, this.cpuPlayer)) {
+                        // 相手の必勝手を潰す（先手で自分がそこに置く）
+                        let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+                        if(!this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) {
+                            return i;
+                        } else if (!this.gravityUsed[this.cpuPlayer]) {
+                            // 自爆するなら重力で盤面を破壊して防ぐ
+                            for (let dir of ['up', 'down', 'left', 'right']) {
+                                let simFunc = this.simulateGravityAndChainBoardSync.bind(this);
+                                let boardAfterGrav = simFunc(this.board, dir);
+                                if (!this.checkWinnerForSimulatedBoard(boardAfterGrav, this.humanPlayer)) {
+                                    return 'gravity-' + dir;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 6. 安全マスの絞り込み（難易度別の先読みシミュレーション）
+        let safeCells = [];
+        if(this.difficulty === 'easy') {
+            safeCells = emptyCells.filter(i => !this.wouldPlayerLosePiecesOnBoard([...this.board], i, this.cpuPlayer));
+        } else {
+            let turnCount = this.maxCells - emptyCells.length;
+            for(let i of emptyCells) {
+                let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+                if(this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) continue; 
+                
+                let humanCanWin = false;
+                for(let j of emptyCells) {
+                    if(i === j) continue;
+                    let hTb = [...myTb]; hTb[j] = this.humanPlayer;
+                    if(this.checkWinnerForSimulatedBoard(hTb, this.humanPlayer)) { humanCanWin = true; break; }
+                }
+                if(!humanCanWin && !this.gravityUsed[this.humanPlayer]) {
+                    for(let dir of ['up', 'down', 'left', 'right']) {
+                        let simFunc = this.difficulty === 'hard' ? this.simulateGravityAndChainBoardSync.bind(this) : this.simulateGravityOnBoard.bind(this);
+                        if(this.checkWinnerForSimulatedBoard(simFunc(myTb, dir), this.humanPlayer)) { humanCanWin = true; break; }
+                    }
+                }
+                if(humanCanWin) continue; 
+
+                if(this.difficulty === 'hard') {
+                    if (turnCount >= 12) {
+                        if(!this.isSafeMoveHard(myTb, this.cpuPlayer, this.humanPlayer)) continue;
+                    } else {
+                        if(!this.isSafeMoveHardEarly(myTb, this.cpuPlayer, this.humanPlayer)) continue;
+                    }
+                }
+
+                safeCells.push(i);
+            }
+        }
+
+        if(safeCells.length === 0) {
+            safeCells = emptyCells.filter(i => !this.wouldPlayerLosePiecesOnBoard([...this.board], i, this.cpuPlayer));
+        }
+        if(safeCells.length === 0) {
+            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+
+        // 7 & 8. 攻めの布石（多段リーチと重力罠の探索）
+        let moveMultiReach = -1;
+        let moveGravityTrap = -1;
+
+        for(let i of safeCells) {
+            let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+            let winRoutes = 0;
+            for(let j=0; j<this.maxCells; j++) {
+                if(myTb[j] === '') {
+                    let tb2 = [...myTb]; tb2[j] = this.cpuPlayer;
+                    if(this.checkWinnerForSimulatedBoard(tb2, this.cpuPlayer) && !this.wouldPlayerLosePiecesOnBoard(tb2, j, this.cpuPlayer)) winRoutes++;
+                }
+            }
+            if(winRoutes >= 2) { moveMultiReach = i; break; }
+        }
+
+        if(!this.gravityUsed[this.cpuPlayer]) {
+            for(let i of safeCells) {
+                let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
+                let canWin = false;
+                for(let dir of ['up', 'down', 'left', 'right']) {
+                    let simFunc = this.difficulty === 'hard' ? this.simulateGravityAndChainBoardSync.bind(this) : this.simulateGravityOnBoard.bind(this);
+                    if(this.checkWinnerForSimulatedBoard(simFunc(myTb, dir), this.cpuPlayer)) { canWin = true; break; }
+                }
+                if(canWin) { moveGravityTrap = i; break; }
+            }
+        }
+
+        if (this.difficulty === 'hard') {
+            if (moveGravityTrap !== -1) return moveGravityTrap;
+            if (moveMultiReach !== -1) return moveMultiReach;
+        } else {
+            if (moveMultiReach !== -1) return moveMultiReach;
+            if (moveGravityTrap !== -1) return moveGravityTrap;
+        }
+
+        // 9. フォールバック配置
+        return this.getFallbackMove(safeCells, this.difficulty);
+    }
+    
+    isSafeMoveHardEarly(boardAfterCpu, cpuPlayer, humanPlayer) {
+        let directions = ['up', 'down', 'left', 'right'];
+        for (let j = 0; j < this.maxCells; j++) {
+            if (boardAfterCpu[j] === '') {
+                if (this.wouldPlayerLosePiecesOnBoard(boardAfterCpu, j, humanPlayer)) continue;
+                let hb = [...boardAfterCpu]; hb[j] = humanPlayer;
+                
+                let threats = 0; 
+                
+                for(let k=0; k<this.maxCells; k++) {
+                    if(hb[k] === '') {
+                        let hbk = [...hb]; hbk[k] = humanPlayer;
+                        if(this.checkWinnerForSimulatedBoard(hbk, humanPlayer)) {
+                            threats++;
+                            if(threats >= 2) break; 
+                        }
+                    }
+                }
+                if(threats < 2 && !this.gravityUsed[humanPlayer]) {
+                    for(let dir of directions) {
+                        let hbg = this.simulateGravityAndChainBoardSync(hb, dir);
+                        if(this.checkWinnerForSimulatedBoard(hbg, humanPlayer)) {
+                            threats++;
+                            if(threats >= 2) break;
+                        }
+                    }
+                }
+                if (threats >= 2) return false; 
+            }
+        }
+        return true;
+    }
+
+    isSafeMoveHard(boardAfterCpu1, cpuPlayer, humanPlayer) {
+        let directions = ['up', 'down', 'left', 'right'];
+        for (let j = 0; j < this.maxCells; j++) {
+            if (boardAfterCpu1[j] === '') {
+                if (this.wouldPlayerLosePiecesOnBoard(boardAfterCpu1, j, humanPlayer)) continue; 
+                let boardAfterHuman1 = [...boardAfterCpu1];
+                boardAfterHuman1[j] = humanPlayer;
+                if (this.checkWinnerForSimulatedBoard(boardAfterHuman1, humanPlayer)) return false;
+                if (!this.canCpuSurvive(boardAfterHuman1, cpuPlayer, humanPlayer)) return false;
+            }
+        }
+        if (!this.gravityUsed[humanPlayer]) {
+            for (let dir of directions) {
+                let boardAfterHumanGrav = this.simulateGravityAndChainBoardSync(boardAfterCpu1, dir);
+                if (this.checkWinnerForSimulatedBoard(boardAfterHumanGrav, humanPlayer)) return false;
+                if (!this.canCpuSurvive(boardAfterHumanGrav, cpuPlayer, humanPlayer)) return false;
+            }
+        }
+        return true;
+    }
+
+    canCpuSurvive(board, cpuPlayer, humanPlayer) {
+        let directions = ['up', 'down', 'left', 'right'];
+        for (let i = 0; i < this.maxCells; i++) {
+            if (board[i] === '') {
+                if (this.wouldPlayerLosePiecesOnBoard(board, i, cpuPlayer)) continue;
+                let testBoard = [...board]; testBoard[i] = cpuPlayer;
+                
+                let humanCanWin = false;
+                for(let j=0; j<this.maxCells; j++) {
+                    if(testBoard[j] === '') {
+                        let hb = [...testBoard]; hb[j] = humanPlayer;
+                        if(this.checkWinnerForSimulatedBoard(hb, humanPlayer)) { humanCanWin = true; break; }
+                    }
+                }
+                if(!humanCanWin && !this.gravityUsed[humanPlayer]) {
+                    for(let dir of directions) {
+                         let hbg = this.simulateGravityAndChainBoardSync(testBoard, dir);
+                         if(this.checkWinnerForSimulatedBoard(hbg, humanPlayer)) { humanCanWin = true; break; }
+                    }
+                }
+                if(!humanCanWin) return true; 
+            }
+        }
+        if(!this.gravityUsed[cpuPlayer]) {
+            for(let dir of directions) {
+                let testBoard = this.simulateGravityAndChainBoardSync(board, dir);
+                if(this.checkWinnerForSimulatedBoard(testBoard, cpuPlayer)) return true; 
+            }
+        }
+        return false;
+    }
+
+    getFallbackMove(safeCells, difficulty) {
+        if (difficulty === 'hard') {
+            return this.getHardScoredMove(safeCells);
+        }
+
+        let turnCount = this.board.filter(c => c !== '').length;
+        let centralCells = this.getCentralCells();
+        
+        if (turnCount <= 1) { 
+            let availableCentral = centralCells.filter(i => safeCells.includes(i));
+            if (availableCentral.length > 0) return availableCentral[Math.floor(Math.random() * availableCentral.length)];
+        }
+        
+        if (this.lastHumanMove !== null) {
+            let adj = this.getAdjacentCells(this.lastHumanMove);
+            let availableAdj = adj.filter(i => safeCells.includes(i));
+            if (availableAdj.length > 0) {
+                if (difficulty === 'easy') {
+                    return availableAdj[Math.floor(Math.random() * availableAdj.length)];
+                } else {
+                    let bestScore = -1; let bestMoves = [];
+                    for (let i of availableAdj) {
+                        let score = 0;
+                        if (this.checkLineExtension(i, this.cpuPlayer)) score += 2;
+                        if (this.checkLineExtension(i, this.humanPlayer)) score += 1;
+                        if (score > bestScore) { bestScore = score; bestMoves = [i]; } 
+                        else if (score === bestScore) { bestMoves.push(i); }
+                    }
+                    return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+                }
+            }
+        }
+        return safeCells[Math.floor(Math.random() * safeCells.length)];
+    }
+
+    getHardScoredMove(safeCells) {
+        let bestScore = -Infinity;
+        let bestMoves = [];
+        for (let i of safeCells) {
+            let score = this.evaluateHardMoveScore(i);
+            if (score > bestScore) { bestScore = score; bestMoves = [i]; }
+            else if (score === bestScore) { bestMoves.push(i); }
+        }
+        if (bestMoves.length > 0) return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+        return safeCells[Math.floor(Math.random() * safeCells.length)];
+    }
+
+    evaluateHardMoveScore(index) {
+        let score = 0;
+        let size = this.boardSize;
+        let row = Math.floor(index / size);
+        let col = index % size;
+        let directions = [[1,0],[0,1],[1,1],[1,-1]];
+
+        let centerR = size / 2 - 0.5;
+        let dist = Math.max(Math.abs(row - centerR), Math.abs(col - centerR));
+        score += (10 - dist * 2);
+
+        for (let [dx, dy] of directions) {
+            let r1 = row+dy, c1 = col+dx;
+            let r2 = row-dy, c2 = col-dx;
+            let val1 = (r1>=0&&r1<size&&c1>=0&&c1<size) ? this.board[r1*size+c1] : 'wall';
+            let val2 = (r2>=0&&r2<size&&c2>=0&&c2<size) ? this.board[r2*size+c2] : 'wall';
+            
+            if (val1 === this.cpuPlayer) score += 5; 
+            if (val2 === this.cpuPlayer) score += 5;
+            if (val1 === this.humanPlayer) score += 4; 
+            if (val2 === this.humanPlayer) score += 4;
+            
+            if (val1 === this.cpuPlayer && val2 === '') score += 3;
+            if (val2 === this.cpuPlayer && val1 === '') score += 3;
+        }
+        
+        if (this.lastHumanMove !== null) {
+            let hRow = Math.floor(this.lastHumanMove / size);
+            let hCol = this.lastHumanMove % size;
+            let hDist = Math.max(Math.abs(row - hRow), Math.abs(col - hCol));
+            if (hDist <= 1) score += 4; 
+        }
+        return score;
+    }
+
+    checkLineExtension(index, player) {
+        let directions = [[1,0],[0,1],[1,1],[1,-1]];
+        let size = this.boardSize; let row = Math.floor(index / size); let col = index % size;
+        for (let [dx, dy] of directions) {
+            let x1 = col + dx, y1 = row + dy; let x2 = col - dx, y2 = row - dy;
+            let hasPlayer = false;
+            if (x1 >= 0 && x1 < size && y1 >= 0 && y1 < size && this.board[y1 * size + x1] === player) hasPlayer = true;
+            if (x2 >= 0 && x2 < size && y2 >= 0 && y2 < size && this.board[y2 * size + x2] === player) hasPlayer = true;
+            if(hasPlayer) return true;
+        }
+        return false;
+    }
+
+    getCentralCells() {
+        let cells = []; let size = this.boardSize;
+        let start = size === 6 ? 1 : 2; let end = size === 6 ? 4 : 4;
+        for (let r = start; r <= end; r++) { for (let c = start; c <= end; c++) { cells.push(r * size + c); } }
+        return cells;
+    }
+
+    getAdjacentCells(index) {
+        let cells = []; let size = this.boardSize;
+        let row = Math.floor(index / size); let col = index % size;
+        for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+                if (dx === 0 && dy === 0) continue;
+                let r = row + dy, c = col + dx;
+                if (r >= 0 && r < size && c >= 0 && c < size) { cells.push(r * size + c); }
+            }
+        }
+        return cells;
+    }
+
+    // ==========================================
+    // 基本システム・判定処理
+    // ==========================================
+
     wouldPlayerLosePiecesOnBoard(targetBoard, moveIndex, player) {
         const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const size = this.boardSize; const row = Math.floor(moveIndex / size); const col = moveIndex % size;
         for (let [dx, dy] of directions) {
@@ -437,10 +850,61 @@ class TicTacToe {
         else if (direction === 'right') { for (let row = 0; row < size; row++) { let w = row * size + (size - 1); for (let col = (size - 1); col >= 0; col--) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w--; } } } }
         return newBoard;
     }
+
+    simulateGravityAndChainBoardSync(initialBoard, direction) {
+        let board = [...initialBoard]; let changed = true; let loopCount = 0;
+        board = this.simulateGravityOnBoard(board, direction);
+        while(changed && loopCount < 10) {
+            changed = false; loopCount++;
+            let toRemove = this.getThreesToRemoveSync(board);
+            if(toRemove.size > 0) {
+                changed = true;
+                for(let i of toRemove) board[i] = '';
+                board = this.simulateGravityOnBoard(board, direction); 
+            }
+        }
+        return board;
+    }
+
+    getThreesToRemoveSync(board) {
+        const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const cellsToRemove = new Set(); const size = this.boardSize;
+        for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+                const index = row * size + col; if (board[index] === '') continue;
+                for (let [dx, dy] of directions) {
+                    let count = 1; let positions = [index]; let x = col + dx; let y = row + dy; 
+                    while (x >= 0 && x < size && y >= 0 && y < size) { const nextIndex = y * size + x; if (board[nextIndex] === board[index] && board[index] !== '') { count++; positions.push(nextIndex); x += dx; y += dy; } else break; }
+                    let negCount = 0; let negPositions = []; x = col - dx; y = row - dy; 
+                    while (x >= 0 && x < size && y >= 0 && y < size) { const nextIndex = y * size + x; if (board[nextIndex] === board[index] && board[index] !== '') { negCount++; negPositions.push(nextIndex); x -= dx; y -= dy; } else break; }
+                    if (count + negCount === 3) [...positions, ...negPositions].forEach(pos => cellsToRemove.add(pos));
+                }
+            }
+        }
+        return cellsToRemove;
+    }
     
     isNearPlayer(index, player) { const size = this.boardSize; const row = Math.floor(index / size); const col = index % size; const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]; for (let [dy, dx] of directions) { const newRow = row + dy; const newCol = col + dx; if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) { if (this.board[newRow * size + newCol] === player) return true; } } return false; }
-    async makeMove(index) { this.board[index] = this.currentPlayer; this.updateCell(index); if (this.checkWinner()) { this.endGame(); return; } await this.checkAndRemoveThrees(); if (this.checkDraw()) { this.endGame(true); return; } }
-    async useGravity(direction) { if (this.gravityUsed[this.currentPlayer]) return; this.saveSnapshotToHistory(); this.gravityUsed[this.currentPlayer] = true; this.lastGravityDirection = direction; document.getElementById('gravity-directions').style.display = 'none'; this.stopGravityPreview(); await this.sleep(300); await this.applyGravity(direction); }
+    
+    async makeMove(index) { 
+        this.board[index] = this.currentPlayer; 
+        this.updateCell(index); 
+        if (this.checkWinner()) { this.endGame(); return; } 
+        await this.checkAndRemoveThrees(); 
+        if (this.checkDraw()) { this.endGame(true); return; } 
+    }
+
+    async useGravity(direction) { 
+        if (this.gravityUsed[this.currentPlayer]) return; 
+        
+        this.isAnimating = true; 
+        this.saveSnapshotToHistory(); 
+        this.gravityUsed[this.currentPlayer] = true; 
+        this.lastGravityDirection = direction; 
+        document.getElementById('gravity-directions').style.display = 'none'; 
+        this.stopGravityPreview(); 
+        await this.sleep(300); 
+        await this.applyGravity(direction); 
+    }
     
     async applyGravity(direction) {
         this.showLoadingIndicator(); const size = this.boardSize; const currentBoard = [...this.board]; const newBoard = Array(this.maxCells).fill(''); const moves = [];
@@ -457,7 +921,32 @@ class TicTacToe {
     sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
     
     async updateBoardDisplay() { const cells = document.querySelectorAll('.cell'); const animationPromises = []; cells.forEach((cell, index) => { const value = this.board[index]; if (value !== '') { cell.textContent = value === 'o' ? '〇' : '✕'; cell.className = `cell ${value} moving`; animationPromises.push(new Promise(resolve => { setTimeout(() => { cell.classList.remove('moving'); resolve(); }, 400); })); } else { cell.textContent = ''; cell.className = 'cell'; cell.style.background = ''; cell.style.boxShadow = ''; cell.style.border = ''; cell.style.transform = ''; } }); if (animationPromises.length > 0) await Promise.all(animationPromises); }
-    async afterGravityCheck() { const oWins = this.checkWinnerForPlayer('o'); const xWins = this.checkWinnerForPlayer('x'); if (oWins && xWins) { this.hideLoadingIndicator(); this.endGame(true); return; } else if (oWins) { this.endGame(false, '〇がこの試合を制しました！', true); return; } else if (xWins) { this.endGame(false, '✕がこの試合を制しました！', true); return; } await this.checkAndRemoveThreesWithChainGravity(); this.hideLoadingIndicator(); if (this.gameActive) { setTimeout(() => { this.switchPlayer(); this.updateStatus(); this.updateGravityButton(); this.scanAndRenderDangerZones(); if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) setTimeout(() => this.makeCpuMove(), 500); }, 1000); } }
+    
+    async afterGravityCheck() { 
+        const oWins = this.checkWinnerForPlayer('o'); 
+        const xWins = this.checkWinnerForPlayer('x'); 
+        
+        if (oWins && xWins) { 
+            this.hideLoadingIndicator(); this.endGame(true); this.isAnimating = false; this.updateGravityButton(); this.updateUndoButtonState(); return; 
+        } else if (oWins) { 
+            this.endGame(false, '〇がこの試合を制しました！', true); this.isAnimating = false; this.updateGravityButton(); this.updateUndoButtonState(); return; 
+        } else if (xWins) { 
+            this.endGame(false, '✕がこの試合を制しました！', true); this.isAnimating = false; this.updateGravityButton(); this.updateUndoButtonState(); return; 
+        } 
+        
+        await this.checkAndRemoveThreesWithChainGravity(); 
+        this.hideLoadingIndicator(); 
+        
+        if (this.gameActive) { 
+            setTimeout(() => { 
+                this.switchPlayer(); this.updateStatus(); this.isAnimating = false; this.updateGravityButton(); this.updateUndoButtonState(); this.scanAndRenderDangerZones(); 
+                if (this.isCpuMode && this.currentPlayer === this.cpuPlayer) setTimeout(() => this.makeCpuMove(), 500); 
+            }, 1000); 
+        } else {
+            this.isAnimating = false; this.updateGravityButton(); this.updateUndoButtonState();
+        }
+    }
+    
     async checkAndRemoveThreesWithChainGravity() { await this.processChainGravity(0); }
     async processChainGravity(chainCount) { if (chainCount >= 10) return; const hasRemovals = await this.checkAndRemoveThrees(); if (hasRemovals) { return new Promise(resolve => { setTimeout(async () => { try { await this.fillEmptySpacesWithDirection(this.lastGravityDirection); const oWins = this.checkWinnerForPlayer('o'); const xWins = this.checkWinnerForPlayer('x'); if (oWins && xWins) { this.hideLoadingIndicator(); this.endGame(true); resolve(); return; } else if (oWins) { this.endGame(false, '〇がこの試合を制しました！', true); resolve(); return; } else if (xWins) { this.endGame(false, '✕がこの試合を制しました！', true); resolve(); return; } await new Promise(resolveInner => setTimeout(() => { this.processChainGravity(chainCount + 1).then(resolveInner); }, 500)); } catch (e) { console.error(e); } finally { resolve(); } }, 300); }); } }
     
@@ -477,7 +966,7 @@ class TicTacToe {
     checkDraw() { return this.board.every(cell => cell !== ''); }
     switchPlayer() { this.currentPlayer = this.currentPlayer === 'o' ? 'x' : 'o'; }
     updateStatus() { document.getElementById('status').textContent = `${this.currentPlayer === 'o' ? '〇' : '✕'}の番です`; }
-    updateGravityButton() { document.getElementById('gravity-btn').disabled = this.gravityUsed[this.currentPlayer]; }
+    updateGravityButton() { document.getElementById('gravity-btn').disabled = (this.gravityUsed[this.currentPlayer] || this.isAnimating); }
     
     endGame(isDraw = false, customMessage = '', showImmediately = false) {
         this.gameActive = false; const modalBtn = document.getElementById('play-again-btn');
@@ -505,8 +994,8 @@ class TicTacToe {
         }
     }
     
-    resetGame() { this.board = Array(this.maxCells).fill(''); this.gameActive = true; this.gravityUsed = { o: false, x: false }; this.lastGravityDirection = null; this.currentPlayer = this.initialStartingPlayer || 'o'; this.historyStack = []; this.clearBoard(); this.updateStatus(); this.updateGravityButton(); this.hideWinnerModal(); document.getElementById('gravity-directions').style.display = 'none'; this.scanAndRenderDangerZones(); this.updateUndoButtonState(); }
-    playAgain() { if (this.isMatchOver) { this.resetMatchScoresAndGame(); } else { this.resetGame(); this.currentPlayer = this.initialStartingPlayer; this.updateStatus(); this.updateGravityButton(); } if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) { setTimeout(() => this.makeCpuMove(), 500); } }
+    resetGame() { this.board = Array(this.maxCells).fill(''); this.gameActive = true; this.gravityUsed = { o: false, x: false }; this.lastGravityDirection = null; this.currentPlayer = this.initialStartingPlayer || 'o'; this.historyStack = []; this.lastHumanMove = null; this.clearBoard(); this.updateStatus(); this.isAnimating = false; this.updateGravityButton(); this.hideWinnerModal(); document.getElementById('gravity-directions').style.display = 'none'; this.scanAndRenderDangerZones(); this.updateUndoButtonState(); }
+    playAgain() { if (this.isMatchOver) { this.resetMatchScoresAndGame(); } else { this.resetGame(); this.currentPlayer = this.initialStartingPlayer; this.updateStatus(); this.updateGravityButton(); this.updateUndoButtonState(); } if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) { setTimeout(() => this.makeCpuMove(), 500); } }
     clearBoard() { document.querySelectorAll('.cell').forEach(cell => { cell.textContent = ''; cell.className = 'cell'; cell.style.background = ''; cell.style.boxShadow = ''; cell.style.border = ''; cell.style.transform = ''; }); }
     
     checkWinnerForPlayer(player) { return this.checkWinnerForSimulatedBoard(this.board, player); }
@@ -525,8 +1014,6 @@ class TicTacToe {
         } 
         return false; 
     }
-    
-    findDefensiveGravityMove() { const directions = ['up', 'down', 'left', 'right']; for (const dir of directions) { const simulatedBoard = this.simulateGravity(dir); let isSafe = true; for (let i = 0; i < this.maxCells; i++) { if (simulatedBoard[i] === '') { simulatedBoard[i] = this.humanPlayer; if (this.checkWinnerForSimulatedBoard(simulatedBoard, this.humanPlayer)) isSafe = false; simulatedBoard[i] = ''; } } if (isSafe) return dir; } return directions[Math.floor(Math.random() * directions.length)]; }
     
     async checkAndRemoveThrees() {
         const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; const cellsToRemove = new Set(); const size = this.boardSize;
