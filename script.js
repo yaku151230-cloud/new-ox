@@ -6,7 +6,9 @@ class TicTacToe {
         this.board = Array(36).fill('');
         this.currentPlayer = 'o';
         this.gameActive = true;
-        this.gravityUsed = { o: false, x: false };
+        
+        this.gravityLimit = 1; 
+        this.gravityLeft = { o: 1, x: 1 };
         this.lastGravityDirection = null; 
         
         this.isCpuMode = false;
@@ -67,7 +69,6 @@ class TicTacToe {
         
         const backToMainFromGameBtn = document.getElementById('back-to-main-from-game-btn');
         if (backToMainFromGameBtn) {
-            // 【変更】プレイ画面の戻るボタンを押した時、選択画面に1つ戻る
             backToMainFromGameBtn.addEventListener('click', () => {
                 this.gameActive = false;
                 this.isAnimating = false;
@@ -89,11 +90,15 @@ class TicTacToe {
         document.getElementById('guide-on-btn').addEventListener('click', () => this.setGuideMode(true));
         document.getElementById('guide-off-btn').addEventListener('click', () => this.setGuideMode(false));
         
+        document.getElementById('gravity-0-btn').addEventListener('click', () => this.setGravityLimit(0));
+        document.getElementById('gravity-1-btn').addEventListener('click', () => this.setGravityLimit(1));
+        document.getElementById('gravity-2-btn').addEventListener('click', () => this.setGravityLimit(2));
+        
         document.getElementById('help-modal').addEventListener('click', (e) => { if (e.target.id === 'help-modal') this.hideHelpModal(); });
         document.getElementById('settings-modal').addEventListener('click', (e) => { if (e.target.id === 'settings-modal') this.hideSettingsModal(); });
         
         document.getElementById('gravity-btn').addEventListener('click', () => {
-            if (this.isAnimating || this.gravityUsed[this.currentPlayer]) return;
+            if (this.isAnimating || this.gravityLeft[this.currentPlayer] <= 0) return;
             const directions = document.getElementById('gravity-directions');
             if (directions.style.display === 'flex') { directions.style.display = 'none'; this.stopGravityPreview(); } 
             else { directions.style.display = 'flex'; }
@@ -136,11 +141,18 @@ class TicTacToe {
         document.getElementById('cpu-random-btn').classList.toggle('active', order === 'random');
     }
 
+    setGravityLimit(limit) {
+        this.gravityLimit = limit;
+        document.getElementById('gravity-0-btn').classList.toggle('active', limit === 0);
+        document.getElementById('gravity-1-btn').classList.toggle('active', limit === 1);
+        document.getElementById('gravity-2-btn').classList.toggle('active', limit === 2);
+    }
+
     showSetupScreen(isCpu) {
         this.isCpuMode = isCpu;
         this.hideWinnerModal();
         document.getElementById('main-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'none'; // 【変更】プレイ画面から戻ってきた時に確実に隠す
+        document.getElementById('game-screen').style.display = 'none'; 
         document.getElementById('cpu-selection-screen').style.display = 'flex';
         
         const cpuOptionsArea = document.getElementById('cpu-only-setup-options');
@@ -239,7 +251,7 @@ class TicTacToe {
         const snapshot = { 
             board: Array.from(this.board), 
             currentPlayer: this.currentPlayer, 
-            gravityUsed: Object.assign({}, this.gravityUsed), 
+            gravityLeft: Object.assign({}, this.gravityLeft), 
             lastGravityDirection: this.lastGravityDirection 
         };
         this.historyStack.push(snapshot);
@@ -257,7 +269,7 @@ class TicTacToe {
             const previousState = this.historyStack.pop();
             this.board = Array.from(previousState.board); 
             this.currentPlayer = previousState.currentPlayer; 
-            this.gravityUsed = Object.assign({}, previousState.gravityUsed); 
+            this.gravityLeft = Object.assign({}, previousState.gravityLeft); 
             this.lastGravityDirection = previousState.lastGravityDirection;
         }
         this.renderActualFrame(); this.updateStatus(); this.updateGravityButton(); this.updateUndoButtonState(); this.scanAndRenderDangerZones(); 
@@ -357,7 +369,7 @@ class TicTacToe {
     }
     
     // ==========================================
-    // CPU 思考ロジック（完全体Minimax搭載）
+    // CPU 思考ロジック（完全体Minimax搭載 + 残弾対応）
     // ==========================================
     
     async makeCpuMove() {
@@ -407,7 +419,7 @@ class TicTacToe {
                 if (this.checkWinnerForSimulatedBoard(tb, player)) winCount++;
             }
         }
-        if (!this.gravityUsed[player]) {
+        if (this.gravityLeft[player] > 0) {
             for (let dir of ['up', 'down', 'left', 'right']) {
                 let tb = this.simulateGravityAndChainBoardSync(board, dir);
                 if (this.checkWinnerForSimulatedBoard(tb, player)) winCount++;
@@ -425,7 +437,7 @@ class TicTacToe {
                 if (this.countWinningMoves(hb, cpuPlayer) === 0) return false; 
             }
         }
-        if (!this.gravityUsed[humanPlayer]) {
+        if (this.gravityLeft[humanPlayer] > 0) {
             for (let dir of ['up', 'down', 'left', 'right']) {
                 let hbg = this.simulateGravityAndChainBoardSync(boardAfterCpu, dir);
                 if (this.checkWinnerForSimulatedBoard(hbg, humanPlayer)) return false;
@@ -445,13 +457,13 @@ class TicTacToe {
             if(this.checkWinnerForSimulatedBoard(tb, this.cpuPlayer) && !this.wouldPlayerLosePiecesOnBoard(tb, i, this.cpuPlayer)) return i;
         }
 
-        if(!this.gravityUsed[this.cpuPlayer]) {
+        if(this.gravityLeft[this.cpuPlayer] > 0) {
             for(let dir of ['up', 'down', 'left', 'right']) {
                 if(this.checkWinnerForSimulatedBoard(this.simulateGravityOnBoard(this.board, dir), this.cpuPlayer)) return 'gravity-' + dir;
             }
         }
 
-        if(this.difficulty === 'hard' && !this.gravityUsed[this.cpuPlayer]) {
+        if(this.difficulty === 'hard' && this.gravityLeft[this.cpuPlayer] > 0) {
             for(let dir of ['up', 'down', 'left', 'right']) {
                 let tb = this.simulateGravityAndChainBoardSync(this.board, dir);
                 if(this.checkWinnerForSimulatedBoard(tb, this.cpuPlayer)) return 'gravity-' + dir;
@@ -475,18 +487,21 @@ class TicTacToe {
                 if(!this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) {
                     return i;
                 } else {
-                    if ((this.difficulty === 'normal' || this.difficulty === 'hard') && !this.gravityUsed[this.cpuPlayer]) {
+                    if ((this.difficulty === 'normal' || this.difficulty === 'hard') && this.gravityLeft[this.cpuPlayer] > 0) {
                         for (let dir of ['up', 'down', 'left', 'right']) {
                             let simFunc = this.difficulty === 'hard' ? this.simulateGravityAndChainBoardSync.bind(this) : this.simulateGravityOnBoard.bind(this);
                             let boardAfterGrav = simFunc(this.board, dir);
-                            if (!this.checkWinnerForSimulatedBoard(boardAfterGrav, this.humanPlayer)) return 'gravity-' + dir;
+                            let isBoardChanged = boardAfterGrav.some((val, idx) => val !== this.board[idx]);
+                            if (isBoardChanged && !this.checkWinnerForSimulatedBoard(boardAfterGrav, this.humanPlayer)) {
+                                return 'gravity-' + dir;
+                            }
                         }
                     }
                 }
             }
         }
 
-        if(!this.gravityUsed[this.humanPlayer]) {
+        if(this.gravityLeft[this.humanPlayer] > 0) {
             for(let dir of ['up', 'down', 'left', 'right']) {
                 let hg = this.simulateGravityOnBoard(this.board, dir);
                 if(this.checkWinnerForSimulatedBoard(hg, this.humanPlayer)) {
@@ -511,11 +526,14 @@ class TicTacToe {
                         let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
                         if(!this.wouldPlayerLosePiecesOnBoard(myTb, i, this.cpuPlayer)) {
                             return i;
-                        } else if (!this.gravityUsed[this.cpuPlayer]) {
+                        } else if (this.gravityLeft[this.cpuPlayer] > 0) {
                             for (let dir of ['up', 'down', 'left', 'right']) {
                                 let simFunc = this.simulateGravityAndChainBoardSync.bind(this);
                                 let boardAfterGrav = simFunc(this.board, dir);
-                                if (!this.checkWinnerForSimulatedBoard(boardAfterGrav, this.humanPlayer)) return 'gravity-' + dir;
+                                let isBoardChanged = boardAfterGrav.some((val, idx) => val !== this.board[idx]);
+                                if (isBoardChanged && !this.checkWinnerForSimulatedBoard(boardAfterGrav, this.humanPlayer)) {
+                                    return 'gravity-' + dir;
+                                }
                             }
                         }
                     }
@@ -538,7 +556,7 @@ class TicTacToe {
                     let hTb = [...myTb]; hTb[j] = this.humanPlayer;
                     if(this.checkWinnerForSimulatedBoard(hTb, this.humanPlayer)) { humanCanWin = true; break; }
                 }
-                if(!humanCanWin && !this.gravityUsed[this.humanPlayer]) {
+                if(!humanCanWin && this.gravityLeft[this.humanPlayer] > 0) {
                     for(let dir of ['up', 'down', 'left', 'right']) {
                         let simFunc = this.difficulty === 'hard' ? this.simulateGravityAndChainBoardSync.bind(this) : this.simulateGravityOnBoard.bind(this);
                         if(this.checkWinnerForSimulatedBoard(simFunc(myTb, dir), this.humanPlayer)) { humanCanWin = true; break; }
@@ -579,7 +597,7 @@ class TicTacToe {
             if(winRoutes >= 2) { moveMultiReach = i; break; }
         }
 
-        if(!this.gravityUsed[this.cpuPlayer]) {
+        if(this.gravityLeft[this.cpuPlayer] > 0) {
             for(let i of safeCells) {
                 let myTb = [...this.board]; myTb[i] = this.cpuPlayer;
                 let canWin = false;
@@ -620,7 +638,7 @@ class TicTacToe {
                         }
                     }
                 }
-                if(threats < 2 && !this.gravityUsed[humanPlayer]) {
+                if(threats < 2 && this.gravityLeft[humanPlayer] > 0) {
                     for(let dir of directions) {
                         let hbg = this.simulateGravityAndChainBoardSync(hb, dir);
                         if(this.checkWinnerForSimulatedBoard(hbg, humanPlayer)) {
@@ -646,7 +664,7 @@ class TicTacToe {
                 if (!this.canCpuSurvive(boardAfterHuman1, cpuPlayer, humanPlayer)) return false;
             }
         }
-        if (!this.gravityUsed[humanPlayer]) {
+        if (this.gravityLeft[humanPlayer] > 0) {
             for (let dir of directions) {
                 let boardAfterHumanGrav = this.simulateGravityAndChainBoardSync(boardAfterCpu1, dir);
                 if (this.checkWinnerForSimulatedBoard(boardAfterHumanGrav, humanPlayer)) return false;
@@ -670,7 +688,7 @@ class TicTacToe {
                         if(this.checkWinnerForSimulatedBoard(hb, humanPlayer)) { humanCanWin = true; break; }
                     }
                 }
-                if(!humanCanWin && !this.gravityUsed[humanPlayer]) {
+                if(!humanCanWin && this.gravityLeft[humanPlayer] > 0) {
                     for(let dir of directions) {
                          let hbg = this.simulateGravityAndChainBoardSync(testBoard, dir);
                          if(this.checkWinnerForSimulatedBoard(hbg, humanPlayer)) { humanCanWin = true; break; }
@@ -679,7 +697,7 @@ class TicTacToe {
                 if(!humanCanWin) return true; 
             }
         }
-        if(!this.gravityUsed[cpuPlayer]) {
+        if(this.gravityLeft[cpuPlayer] > 0) {
             for(let dir of directions) {
                 let testBoard = this.simulateGravityAndChainBoardSync(board, dir);
                 if(this.checkWinnerForSimulatedBoard(testBoard, cpuPlayer)) return true; 
@@ -819,12 +837,13 @@ class TicTacToe {
     
     simulateGravity(direction) { return this.simulateGravityOnBoard(this.board, direction); }
 
+    // 【完全修正】右方向の計算時に currentBoard ではなく targetBoard を使うように修正
     simulateGravityOnBoard(targetBoard, direction) {
         const size = this.boardSize; const newBoard = Array(this.maxCells).fill('');
         if (direction === 'up') { for (let col = 0; col < size; col++) { let w = col; for (let row = 0; row < size; row++) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w += size; } } } } 
         else if (direction === 'down') { for (let col = 0; col < size; col++) { let w = (size * (size - 1)) + col; for (let row = (size - 1); row >= 0; row--) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w -= size; } } } } 
         else if (direction === 'left') { for (let row = 0; row < size; row++) { let w = row * size; for (let col = 0; col < size; col++) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w++; } } } } 
-        else if (direction === 'right') { for (let row = 0; row < size; row++) { let w = row * size + (size - 1); for (let col = (size - 1); col >= 0; col--) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = currentBoard[r]; w--; } } } }
+        else if (direction === 'right') { for (let row = 0; row < size; row++) { let w = row * size + (size - 1); for (let col = (size - 1); col >= 0; col--) { const r = row * size + col; if (targetBoard[r] !== '') { newBoard[w] = targetBoard[r]; w--; } } } }
         return newBoard;
     }
 
@@ -871,11 +890,12 @@ class TicTacToe {
     }
 
     async useGravity(direction) { 
-        if (this.gravityUsed[this.currentPlayer]) return; 
+        if (this.gravityLeft[this.currentPlayer] <= 0) return; 
         
         this.isAnimating = true; 
         this.saveSnapshotToHistory(); 
-        this.gravityUsed[this.currentPlayer] = true; 
+        
+        this.gravityLeft[this.currentPlayer]--; 
         this.lastGravityDirection = direction; 
         document.getElementById('gravity-directions').style.display = 'none'; 
         this.stopGravityPreview(); 
@@ -1033,7 +1053,16 @@ class TicTacToe {
     checkDraw() { return this.board.every(cell => cell !== ''); }
     switchPlayer() { this.currentPlayer = this.currentPlayer === 'o' ? 'x' : 'o'; }
     updateStatus() { document.getElementById('status').textContent = `${this.currentPlayer === 'o' ? '〇' : '✕'}の番です`; }
-    updateGravityButton() { document.getElementById('gravity-btn').disabled = (this.gravityUsed[this.currentPlayer] || this.isAnimating); }
+
+    updateGravityButton() { 
+        const btn = document.getElementById('gravity-btn');
+        btn.disabled = (this.gravityLeft[this.currentPlayer] <= 0 || this.isAnimating); 
+        if (this.gravityLimit > 0) {
+            btn.textContent = `重力 (${this.gravityLeft[this.currentPlayer]})`;
+        } else {
+            btn.textContent = `重力 (OFF)`;
+        }
+    }
     
     async endGame(isDraw = false, customMessage = '', showImmediately = false, explicitWinner = null) {
         this.gameActive = false; 
@@ -1095,7 +1124,26 @@ class TicTacToe {
         }
     }
     
-    resetGame() { this.board = Array(this.maxCells).fill(''); this.gameActive = true; this.gravityUsed = { o: false, x: false }; this.lastGravityDirection = null; this.currentPlayer = this.initialStartingPlayer || 'o'; this.historyStack = []; this.lastHumanMove = null; this.clearBoard(); this.updateStatus(); this.isAnimating = false; this.updateGravityButton(); this.hideWinnerModal(); document.getElementById('gravity-directions').style.display = 'none'; this.scanAndRenderDangerZones(); this.updateUndoButtonState(); }
+    resetGame() { 
+        this.board = Array(this.maxCells).fill(''); 
+        this.gameActive = true; 
+        
+        this.gravityLeft = { o: this.gravityLimit, x: this.gravityLimit };
+        this.lastGravityDirection = null; 
+        
+        this.currentPlayer = this.initialStartingPlayer || 'o'; 
+        this.historyStack = []; 
+        this.lastHumanMove = null; 
+        this.clearBoard(); 
+        this.updateStatus(); 
+        this.isAnimating = false; 
+        this.updateGravityButton(); 
+        this.hideWinnerModal(); 
+        document.getElementById('gravity-directions').style.display = 'none'; 
+        this.scanAndRenderDangerZones(); 
+        this.updateUndoButtonState(); 
+    }
+    
     playAgain() { if (this.isMatchOver) { this.resetMatchScoresAndGame(); } else { this.resetGame(); this.currentPlayer = this.initialStartingPlayer; this.updateStatus(); this.updateGravityButton(); this.updateUndoButtonState(); } if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) { setTimeout(() => this.makeCpuMove(), 500); } }
     clearBoard() { document.querySelectorAll('.cell').forEach(cell => { cell.textContent = ''; cell.className = 'cell'; cell.style.background = ''; cell.style.boxShadow = ''; cell.style.border = ''; cell.style.transform = ''; }); }
     

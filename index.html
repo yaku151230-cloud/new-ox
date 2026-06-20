@@ -147,7 +147,7 @@
                             <div class="rule-item-visual">
                                 <div class="rule-left">
                                     <span class="rule-icon">🌎</span>
-                                    <span class="rule-text wrap-text"><strong>重力</strong><br>盤面にある全てのコマを任意の方向に移動できます。移動後に３つ揃った場合は画像のような効果が発生します。使用は一人一回です。</span>
+                                    <span class="rule-text wrap-text"><strong>重力</strong><br>盤面にある全てのコマを任意の方向に移動できます。移動後に３つ揃った場合は画像のような効果が発生します。使用回数は設定で変更可能です（デフォルト1回）。</span>
                                 </div>
                                 <div class="visual-flow-container">
                                     <div class="flow-step-block">
@@ -218,6 +218,15 @@
                             <button id="guide-off-btn" class="speed-toggle-btn">OFF</button>
                         </div>
                         <p style="font-size: 0.8rem; color: #666; margin-top: 5px; text-align: left; line-height: 1.3;">※ONにすると、３つ揃って消滅するマスの事前警告や、重力ボタンの長押しで重力による移動後の盤面が表示されます。</p>
+                    </div>
+                    <div class="help-section">
+                        <h3>重力の使用回数</h3>
+                        <div class="settings-row" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 5px;">
+                            <button id="gravity-0-btn" class="speed-toggle-btn">0回</button>
+                            <button id="gravity-1-btn" class="speed-toggle-btn active">1回</button>
+                            <button id="gravity-2-btn" class="speed-toggle-btn">2回</button>
+                        </div>
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 5px; text-align: left; line-height: 1.3;">※1ゲーム中に各プレイヤーが使用できる重力の回数です。※設定は次回のゲーム（リセット）から適用されます。</p>
                     </div>
                     <div class="help-section">
                         <h3>テーマカラー</h3>
