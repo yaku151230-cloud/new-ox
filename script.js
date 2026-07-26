@@ -245,6 +245,11 @@ class TicTacToe {
         this.isMatchOver = false;
         this.updateScoreboardDisplay();
         this.resetGame();
+
+        // 追加: CPUモードかつCPUの手番なら、CPUに手を打たせる
+        if (this.isCpuMode && this.currentPlayer === this.cpuPlayer && this.gameActive) {
+            setTimeout(() => this.makeCpuMove(), 500);
+        }
     }
 
     saveSnapshotToHistory() {
